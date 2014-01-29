@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
@@ -48,6 +49,8 @@ public static ItemStack createEditedCommandTool(CommandTool tool) throws NoSuchF
     book.setItemMeta(metaData);
     NBTUtils.setCommandToolOwner(book, tool.getOwnerName());
     NBTUtils.setCommandToolID(book, tool.getId());
+    NBTUtils.setToolEditorMode(book);
+    
     
     
     return book;
@@ -79,7 +82,7 @@ public void onBookEdit(PlayerEditBookEvent event)
 public static boolean isToolEditor(ItemStack hItem)
 {
     if(hItem.getType() != Material.BOOK_AND_QUILL) return false;
-    return NBTUtils.getCommandToolOwner(hItem).length() > 0;
+    return NBTUtils.getToolEditorMode(hItem);
 }
 
 private static List<String> commandsToPages(List<String> commands)
@@ -118,7 +121,7 @@ private void enableGlowEnchantment()
         
         try 
         {
-            GlowEnchantment = new GlowingEnchantmentWrapper(61037);
+            GlowEnchantment = new GlowingEnchantmentWrapper(69);
             EnchantmentWrapper.registerEnchantment(GlowEnchantment);
         } catch (IllegalArgumentException e){}
         

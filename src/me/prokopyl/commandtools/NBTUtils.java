@@ -16,6 +16,7 @@ public class NBTUtils {
     private static final String NBT_OWNER_TAG_NAME = "CommandToolOwner";
     //private static final String NBT_NAME_TAG_NAME = "CommandToolName";
     private static final String NBT_ID_TAG_NAME = "CommandToolId";
+    private static final String NBT_EDITION_TAG_NAME = "CommandToolEdition";
     
     public static ItemStack createCraftItemStack(Material id, int amount)
     {
@@ -40,6 +41,16 @@ public class NBTUtils {
     public static void setCommandToolOwner(ItemStack item, String owner)
     {
         getNBTTagRW(item).setString(NBT_OWNER_TAG_NAME, owner);
+    }
+    
+    public static boolean getToolEditorMode(ItemStack item)
+    {
+        return getNBTTagRO(item).getBoolean(NBT_ID_TAG_NAME);
+    }
+    
+    public static void setToolEditorMode(ItemStack item)
+    {
+        getNBTTagRW(item).setBoolean(NBT_EDITION_TAG_NAME, true);
     }
     
     public static void setCommandToolData(ItemStack item, CommandTool tool)

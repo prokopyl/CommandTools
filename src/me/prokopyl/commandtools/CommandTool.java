@@ -86,9 +86,9 @@ public class CommandTool implements ConfigurationSerializable
     public List<String> getCommands()
     {
         List<String> listCommands = new ArrayList<String>();
-        for(int i = 0; i < listCommands.size(); i++)
+        for(String sCommand : commands)
         {
-            listCommands.add("/" + commands.get(i));
+            listCommands.add("/" + sCommand);
         }
         return listCommands;
     }
@@ -108,6 +108,7 @@ public class CommandTool implements ConfigurationSerializable
     
     static public boolean isCommandTool(ItemStack item)
     {
+        if(NBTUtils.getToolEditorMode(item) == true) return false;
         return !(NBTUtils.getCommandToolID(item).equals(""));
     }
     
