@@ -18,16 +18,16 @@
 package me.prokopyl.commandtools;
 
 import java.util.LinkedList;
+import java.util.List;
+import org.bukkit.Location;
 
 public class ToolStore 
 {
     private final LinkedList<PlayerToolStore> playerTools;
-    private final CommandTools plugin;
     
-    public ToolStore(CommandTools hPlugin)
+    public ToolStore()
     {
         playerTools = new LinkedList<PlayerToolStore>();
-        plugin = hPlugin;
     }
     
     public CommandTool getTool(String playerName, String toolID)
@@ -49,10 +49,20 @@ public class ToolStore
         }
     }
     
+    public String getNextAvailableToolID(String toolID, String playerName)
+    {
+        return getPlayerToolStore(playerName).getNextAvailableToolID(toolID);
+    }
+    
+    public void runVirtualPlayerCommands(List<String> sCommands, String sPlayerName, Location hLocation)
+    {
+        getPlayerToolStore(sPlayerName).runCommands(sCommands, hLocation);
+    }
+    
     private PlayerToolStore getPlayerToolStore(String playerName)
     {
         PlayerToolStore store = getExistingPlayerToolStore(playerName);
-        if(store == null) store = new PlayerToolStore(playerName, plugin);
+        if(store == null) store = new PlayerToolStore(playerName);
         playerTools.add(store);
         return store;
     }

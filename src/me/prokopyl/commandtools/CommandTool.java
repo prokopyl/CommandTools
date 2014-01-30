@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.bukkit.Bukkit;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,14 +18,14 @@ public final class CommandTool implements ConfigurationSerializable
     private String id;
     private final String ownerName;
     private Material itemType;
-    private VirtualPlayer virtualplayer = null;
     private final ArrayList<String> commands = new ArrayList<String>();
     
-    public CommandTool(String sName, Material hItemType, String sOwnerName)
+    public CommandTool(String sId, String sName, Material hItemType, String sOwnerName)
     {
         ownerName = sOwnerName;
         itemType = hItemType;
-        setName(sName);
+        id = sId;
+        name = sName;
         commands.add("/chunk");
     }
     
@@ -39,23 +38,11 @@ public final class CommandTool implements ConfigurationSerializable
     
     public void use(Player player)
     {
-        if(virtualplayer == null) createVirtualPlayer(player);
         Location loc = player.getTargetBlock(null, 100).getLocation();
         
         //virtualplayer.teleport(loc);
-        virtualplayer.moveTo(loc);
         //virtualplayer.executeCommand(command);
-        for(String sCommand : commands)
-        {
-            virtualplayer.executeCommand(sCommand);
-        }
-    }
-    
-    public final void notify(String message)
-    {
-        Player player = Bukkit.getPlayerExact(ownerName);
-        if(player == null) return;
-        player.sendMessage("§6" + name + ">§r " + message);
+        CommandTools.getPlugin().runVirtualPlayerCommands(commands, ownerName, loc);
     }
     
     /*===== Getters & Setters =====*/
@@ -78,9 +65,8 @@ public final class CommandTool implements ConfigurationSerializable
     public final void setName(String sName)
     {
         name = sName;
-        id = sName;
-        
     }
+    
     
     public List<String> getCommands()
     {
@@ -115,7 +101,7 @@ public final class CommandTool implements ConfigurationSerializable
     public CommandTool(Map<String, Object> map, String sOwnerName)
     {
         //this(sName, hItem, hOwner);
-        this((String) map.get("id"), Material.getMaterial((String) map.get("material")), (String) sOwnerName);
+        this((String) map.get("id"),(String) map.get("name"), Material.getMaterial((String) map.get("material")), (String) sOwnerName);
         
         setCommands((List<String>) map.get("commands"));
         
@@ -125,18 +111,15 @@ public final class CommandTool implements ConfigurationSerializable
     public Map<String, Object> serialize() 
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("commands", commands);
+        map.put("commands", getCommands());
         map.put("id", id);
         map.put("material", itemType.toString());
+        map.put("name", name);
         return map;
     }
     
     /*===== Internal object management =====*/
     
     
-    private void createVirtualPlayer(Player player)
-    {
-        virtualplayer = VirtualPlayer.createVirtualPlayer(player.getName(), player.getLocation(), this);
-    }
     
 }

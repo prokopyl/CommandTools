@@ -1,9 +1,11 @@
 package me.prokopyl.commandtools;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -21,13 +23,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class CommandTools extends JavaPlugin implements Listener 
 {
-
+static private CommandTools plugin;
 private final ToolStore toolStore;
+
 
 public CommandTools() 
 {
-    toolStore = new ToolStore(this);
+    plugin = this;
+    toolStore = new ToolStore();
 }
+
+static public CommandTools getPlugin()
+{
+    return plugin;
+}
+
 
 @Override
 public void onEnable()
@@ -74,6 +84,7 @@ public void onPlayerUse(PlayerInteractEvent event)
     CommandTool tool = toolStore.getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool));
     
     tool.use(event.getPlayer());
+    event.setCancelled(true);
 }
 
 @EventHandler(priority=EventPriority.HIGH)
@@ -132,14 +143,19 @@ private void newCommandTool(Player player)
         return;
     }
     
-    CommandTool newTool = new CommandTool("Tool", itemInHand.getType(), player.getName());
+    CommandTool newTool = new CommandTool(toolStore.getNextAvailableToolID("Tool", player.getName()), "Tool", itemInHand.getType(), player.getName());
     toolStore.addTool(newTool);
     
     playerInventory.setItem(firstEmptySlot, itemInHand);
     player.setItemInHand(newTool.createItem());
     
-    newTool.notify("Tool successfuly created. Use /ctool edit to assign commands to this tool.");
+    //newTool.notify("Tool successfuly created. Use /ctool edit to assign commands to this tool.");
     
+}
+
+public void runVirtualPlayerCommands(List<String> sCommands, String sPlayerName, Location hLocation)
+{
+    toolStore.runVirtualPlayerCommands(sCommands, sPlayerName, hLocation);
 }
 
 }

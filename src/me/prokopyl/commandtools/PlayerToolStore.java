@@ -26,23 +26,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 
-class PlayerToolStore implements ConfigurationSerializable
+public class PlayerToolStore implements ConfigurationSerializable
 {
     private final String playerName;
     private final LinkedList<CommandTool> toolList;
-    private final CommandTools plugin;
+    private VirtualPlayer virtualPlayer;
     
-    public PlayerToolStore(String sPlayerName, CommandTools hPlugin)
+    public PlayerToolStore(String sPlayerName)
     {
         playerName = sPlayerName;
         toolList = new LinkedList<CommandTool>();
-        plugin = hPlugin;
         loadToolsFile();
     }
     
@@ -65,6 +67,48 @@ class PlayerToolStore implements ConfigurationSerializable
         toolList.add(newTool);
     }
     
+    public String getNextAvailableToolID(String toolID)
+    {
+        if(!toolExists(toolID)) return toolID;
+        int id = 0;
+        
+        do
+        {
+            id++;
+        }while(toolExists(toolID + "~" + id));
+        
+        return toolID + "~" + id;
+        
+    }
+    
+    public boolean toolExists(String toolID)
+    {
+        for(CommandTool tTool : toolList)
+        {
+            if(tTool.getId().equals(toolID)) return true;
+        }
+        
+        return false;
+    }
+    
+    public void runCommands(List<String> aCommands, Location hLocation)
+    {
+        if(virtualPlayer == null) virtualPlayer = VirtualPlayer.createVirtualPlayer(playerName, hLocation, this);
+        virtualPlayer.moveTo(hLocation);
+        
+        for(String sCommand : aCommands)
+        {
+            virtualPlayer.executeCommand(sCommand);
+        }
+    }
+    
+    public final void notify(String message)
+    {
+        Player player = Bukkit.getPlayerExact(playerName);
+        if(player == null) return;
+        player.sendMessage("§6" + "Tool" + ">§r " + message);
+    }
+    
     /* ****** Serializing ***** */
     
     @Override
@@ -84,12 +128,14 @@ class PlayerToolStore implements ConfigurationSerializable
     private void loadFromConfig(ConfigurationSection section)
     {
         List<Map<String, Object>> list = (List<Map<String, Object>>) section.getList("toolList");
-        
+        if(list == null) return;
         for(Map<String, Object> tMap : list)
         {
             toolList.add(new CommandTool(tMap, playerName));
         }
     }
+    
+    
     
     /* ****** Configuration Files management ***** */
     
@@ -103,7 +149,7 @@ class PlayerToolStore implements ConfigurationSerializable
     {
         if(toolsDir == null)
         {
-            toolsDir = new File(plugin.getDataFolder(), TOOLS_DIR_NAME);
+            toolsDir = new File(CommandTools.getPlugin().getDataFolder(), TOOLS_DIR_NAME);
             toolsDir.mkdir();
         }
         

@@ -15,11 +15,10 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class VirtualPlayer extends CraftPlayer
 {
-        
-private CommandTool tool;
+private PlayerToolStore toolStore;
 private Location location;
     
-public static VirtualPlayer createVirtualPlayer(String name, Location location, CommandTool tool)
+public static VirtualPlayer createVirtualPlayer(String name, Location location, PlayerToolStore hToolStore)
 {
     VirtualPlayer virtualplayer;
     
@@ -28,17 +27,17 @@ public static VirtualPlayer createVirtualPlayer(String name, Location location, 
     WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
     WorldServer worldserver = mcserver.getWorldServer(0);
     PlayerInteractManager pim = new PlayerInteractManager(worldserver);
-    virtualplayer = new VirtualPlayer(cserver, mcserver, world, name, pim, tool);
+    virtualplayer = new VirtualPlayer(cserver, mcserver, world, name, pim, hToolStore);
     virtualplayer.setLocation(location);
     
     return virtualplayer;
 }
 
 public VirtualPlayer(CraftServer cserver, MinecraftServer mcserver,
-                WorldServer world, String s, PlayerInteractManager iiw, CommandTool hTool)
+                WorldServer world, String s, PlayerInteractManager iiw, PlayerToolStore hToolStore)
 {
         super(cserver, new EntityPlayer(mcserver, world, new GameProfile("0", s), iiw));
-        tool = hTool;
+        toolStore = hToolStore;
         this.setOp(true);
 }
 
@@ -55,7 +54,7 @@ public void updateInventory()
 
 @Override
 public void sendMessage(String s){
-        tool.notify(s);
+        toolStore.notify(s);
 }
 
 public void moveTo(Location hloc){
