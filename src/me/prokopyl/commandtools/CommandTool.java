@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.bukkit.Bukkit;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,21 +13,20 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class CommandTool implements ConfigurationSerializable
+public final class CommandTool implements ConfigurationSerializable
 {
     private String name;
     private String id;
-    private final Player owner;
+    private final String ownerName;
     private Material itemType;
     private VirtualPlayer virtualplayer = null;
     private final ArrayList<String> commands = new ArrayList<String>();
     
-    public CommandTool(String sName, ItemStack hItem, Player hOwner)
+    public CommandTool(String sName, Material hItemType, String sOwnerName)
     {
-        owner = hOwner;
-        itemType = hItem.getType();
+        ownerName = sOwnerName;
+        itemType = hItemType;
         setName(sName);
-        notify("Tool successfuly created. Use /ctool edit to assign commands to this tool.");
         commands.add("/chunk");
     }
     
@@ -37,10 +37,10 @@ public class CommandTool implements ConfigurationSerializable
         return item;
     }
     
-    public void use()
+    public void use(Player player)
     {
-        if(virtualplayer == null) createVirtualPlayer();
-        Location loc = owner.getTargetBlock(null, 100).getLocation();
+        if(virtualplayer == null) createVirtualPlayer(player);
+        Location loc = player.getTargetBlock(null, 100).getLocation();
         
         //virtualplayer.teleport(loc);
         virtualplayer.moveTo(loc);
@@ -53,14 +53,16 @@ public class CommandTool implements ConfigurationSerializable
     
     public final void notify(String message)
     {
-        owner.sendMessage("§6" + name + ">§r " + message);
+        Player player = Bukkit.getPlayerExact(ownerName);
+        if(player == null) return;
+        player.sendMessage("§6" + name + ">§r " + message);
     }
     
     /*===== Getters & Setters =====*/
     
     public String getOwnerName()
     {
-        return owner.getName();
+        return ownerName;
     }
     
     public String getId()
@@ -77,9 +79,6 @@ public class CommandTool implements ConfigurationSerializable
     {
         name = sName;
         id = sName;
-        /*ItemMeta metadata = linkedItem.getItemMeta();
-        metadata.setDisplayName(name);
-        linkedItem.setItemMeta(metadata);*/
         
     }
     
@@ -113,11 +112,12 @@ public class CommandTool implements ConfigurationSerializable
     }
     
     /*===== Serializable object =====*/
-    public CommandTool(String sName, ItemStack hItem, Player hOwner, Map<String, Object> map)
+    public CommandTool(Map<String, Object> map, String sOwnerName)
     {
-        this(sName, hItem, hOwner);
-        Material mat = Material.STONE;
+        //this(sName, hItem, hOwner);
+        this((String) map.get("id"), Material.getMaterial((String) map.get("material")), (String) sOwnerName);
         
+        setCommands((List<String>) map.get("commands"));
         
     }
     
@@ -134,9 +134,9 @@ public class CommandTool implements ConfigurationSerializable
     /*===== Internal object management =====*/
     
     
-    private void createVirtualPlayer()
+    private void createVirtualPlayer(Player player)
     {
-        virtualplayer = VirtualPlayer.createVirtualPlayer(owner.getName(), owner.getLocation(), this);
+        virtualplayer = VirtualPlayer.createVirtualPlayer(player.getName(), player.getLocation(), this);
     }
     
 }

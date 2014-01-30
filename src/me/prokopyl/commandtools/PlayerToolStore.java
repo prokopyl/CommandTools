@@ -17,17 +17,33 @@
 
 package me.prokopyl.commandtools;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.bukkit.configuration.ConfigurationSection;
 
-class PlayerToolStore 
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+
+class PlayerToolStore implements ConfigurationSerializable
 {
     private final String playerName;
     private final LinkedList<CommandTool> toolList;
+    private final CommandTools plugin;
     
-    public PlayerToolStore(String sPlayerName)
+    public PlayerToolStore(String sPlayerName, CommandTools hPlugin)
     {
         playerName = sPlayerName;
         toolList = new LinkedList<CommandTool>();
+        plugin = hPlugin;
+        loadToolsFile();
     }
     
     public String getPlayerName()
@@ -48,4 +64,81 @@ class PlayerToolStore
     {
         toolList.add(newTool);
     }
+    
+    /* ****** Serializing ***** */
+    
+    @Override
+    public Map<String, Object> serialize() 
+    {
+        Map<String, Object> map = new HashMap<String, Object>();
+        ArrayList<Map> list = new ArrayList<Map>();
+        map.put("playerName", playerName);
+        for(CommandTool tTool : toolList)
+        {
+            list.add(tTool.serialize());
+        }
+        map.put("toolList", list);
+        return map;
+    }
+    
+    private void loadFromConfig(ConfigurationSection section)
+    {
+        List<Map<String, Object>> list = (List<Map<String, Object>>) section.getList("toolList");
+        
+        for(Map<String, Object> tMap : list)
+        {
+            toolList.add(new CommandTool(tMap, playerName));
+        }
+    }
+    
+    /* ****** Configuration Files management ***** */
+    
+    static private final String TOOLS_DIR_NAME = "Tools";
+    static private File toolsDir = null;
+    
+    private FileConfiguration toolConfig = null;
+    private File toolsFile = null;
+    
+    private File getToolsDir()
+    {
+        if(toolsDir == null)
+        {
+            toolsDir = new File(plugin.getDataFolder(), TOOLS_DIR_NAME);
+            toolsDir.mkdir();
+        }
+        
+        return toolsDir;
+    }
+    
+    private FileConfiguration getToolConfig()
+    {
+        if(toolConfig == null) loadToolsFile();
+        
+        return toolConfig;
+    }
+    
+    private void loadToolsFile()
+    {
+        if(toolsFile == null)
+        {
+            toolsFile = new File(getToolsDir(), playerName + ".yml");
+            if(!toolsFile.exists()) saveToolsFile();
+        }
+        toolConfig = YamlConfiguration.loadConfiguration(toolsFile);
+        loadFromConfig(getToolConfig().getConfigurationSection("PlayerToolStore"));
+    }
+    
+    public void saveToolsFile()
+    {
+        if(toolsFile == null || toolConfig == null) return;
+        getToolConfig().set("PlayerToolStore", this.serialize());
+        try 
+        {
+            getToolConfig().save(toolsFile);
+        } catch (IOException ex) {
+            Logger.getLogger(PlayerToolStore.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    
 }

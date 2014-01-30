@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,7 +26,7 @@ private final ToolStore toolStore;
 
 public CommandTools() 
 {
-    toolStore = new ToolStore();
+    toolStore = new ToolStore(this);
 }
 
 @Override
@@ -34,6 +35,12 @@ public void onEnable()
     Bukkit.getPluginManager().registerEvents(this, this);
     Bukkit.getPluginManager().registerEvents(new ToolEditor(this), this);
     
+}
+
+@Override
+public void onDisable()
+{
+    toolStore.save();
 }
 
 @Override
@@ -66,7 +73,7 @@ public void onPlayerUse(PlayerInteractEvent event)
     
     CommandTool tool = toolStore.getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool));
     
-    tool.use();
+    tool.use(event.getPlayer());
 }
 
 @EventHandler(priority=EventPriority.HIGH)
@@ -113,6 +120,11 @@ private void newCommandTool(Player player)
 {
     Inventory playerInventory = player.getInventory();
     ItemStack itemInHand = player.getItemInHand();
+    if(itemInHand.getType() == Material.AIR)
+    {
+        player.sendMessage("§cYou must have an item in hand in order to get a tool.");
+        return;
+    }
     int firstEmptySlot = playerInventory.firstEmpty();
     if(firstEmptySlot < 0)
     {
@@ -120,11 +132,13 @@ private void newCommandTool(Player player)
         return;
     }
     
-    CommandTool newTool = new CommandTool("Tool", itemInHand, player);
+    CommandTool newTool = new CommandTool("Tool", itemInHand.getType(), player.getName());
     toolStore.addTool(newTool);
     
     playerInventory.setItem(firstEmptySlot, itemInHand);
     player.setItemInHand(newTool.createItem());
+    
+    newTool.notify("Tool successfuly created. Use /ctool edit to assign commands to this tool.");
     
 }
 

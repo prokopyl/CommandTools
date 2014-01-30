@@ -22,16 +22,17 @@ import java.util.LinkedList;
 public class ToolStore 
 {
     private final LinkedList<PlayerToolStore> playerTools;
+    private final CommandTools plugin;
     
-    public ToolStore()
+    public ToolStore(CommandTools hPlugin)
     {
         playerTools = new LinkedList<PlayerToolStore>();
+        plugin = hPlugin;
     }
     
     public CommandTool getTool(String playerName, String toolID)
     {
-        PlayerToolStore store = getExistingPlayerToolStore(playerName);
-        if(store == null) return null;
+        PlayerToolStore store = getPlayerToolStore(playerName);
         return store.getTool(toolID);
     }
     
@@ -40,15 +41,23 @@ public class ToolStore
         getPlayerToolStore(tool.getOwnerName()).addTool(tool);
     }
     
+    public void save()
+    {
+        for(PlayerToolStore tStore : playerTools)
+        {
+            tStore.saveToolsFile();
+        }
+    }
+    
     private PlayerToolStore getPlayerToolStore(String playerName)
     {
         PlayerToolStore store = getExistingPlayerToolStore(playerName);
-        if(store == null) store = new PlayerToolStore(playerName);
+        if(store == null) store = new PlayerToolStore(playerName, plugin);
         playerTools.add(store);
         return store;
     }
     
-        private PlayerToolStore getExistingPlayerToolStore(String playerName)
+    private PlayerToolStore getExistingPlayerToolStore(String playerName)
     {
         for(PlayerToolStore tStore : playerTools)
         {

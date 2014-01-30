@@ -45,7 +45,7 @@ public class NBTUtils {
     
     public static boolean getToolEditorMode(ItemStack item)
     {
-        return getNBTTagRO(item).getBoolean(NBT_ID_TAG_NAME);
+        return getNBTTagRO(item).getBoolean(NBT_EDITION_TAG_NAME);
     }
     
     public static void setToolEditorMode(ItemStack item)
