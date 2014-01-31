@@ -20,6 +20,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -246,6 +247,11 @@ public void fixNBTInventoryEventWTF(InventoryClickEvent event)
         }
     }
     
+}
+@EventHandler(priority=EventPriority.HIGH)
+public void playerLogin(PlayerLoginEvent event)
+{
+    toolStore.setPlayersToolFresh(event.getPlayer().getName(), true);
 }
 
 }

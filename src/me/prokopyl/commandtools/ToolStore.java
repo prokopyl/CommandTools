@@ -55,6 +55,13 @@ public class ToolStore
         }
     }
     
+    public void setPlayersToolFresh(String playerName, boolean fresh)
+    {
+        PlayerToolStore tStore = getExistingPlayerToolStore(playerName);
+        if(tStore == null) return;
+        tStore.setToolsFresh(fresh);
+    }
+    
     public String getNextAvailableToolID(String toolID, String playerName)
     {
         return getPlayerToolStore(playerName).getNextAvailableToolID(toolID);

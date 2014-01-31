@@ -109,6 +109,14 @@ public class PlayerToolStore implements ConfigurationSerializable
         player.sendMessage("§6" + "Tool" + ">§r " + message);
     }
     
+    public void setToolsFresh(boolean fresh)
+    {
+        for(CommandTool tTool : toolList)
+        {
+            tTool.setFreshTool(fresh);
+        }
+    }
+    
     /* ****** Serializing ***** */
     
     @Override

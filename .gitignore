@@ -1,9 +1,9 @@
 *.class
 
 # Package Files #
-*.jar
 *.war
 *.ear
 /manifest.mf
 /nbproject/*
+/builds/*
 /build.xml
