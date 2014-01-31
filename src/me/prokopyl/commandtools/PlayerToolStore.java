@@ -135,6 +135,7 @@ public class PlayerToolStore implements ConfigurationSerializable
     
     private void loadFromConfig(ConfigurationSection section)
     {
+        if(section == null) return;
         List<Map<String, Object>> list = (List<Map<String, Object>>) section.getList("toolList");
         if(list == null) return;
         for(Map<String, Object> tMap : list)

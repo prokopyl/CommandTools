@@ -5,5 +5,5 @@
 *.ear
 /manifest.mf
 /nbproject/*
-/builds/*
+/build/*
 /build.xml
