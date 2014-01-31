@@ -2,16 +2,13 @@
 
 main: me.prokopyl.commandtools.CommandTools
 name: CommandTools
-version: 0.0.0a
+version: 0.0.9a
 author: ProkopyL
 
 commands:
    ctool:
-      description: This is a demo command.
-      usage: /<command> [player]
+      description: Manages and creates Command Tools.
+      usage: /<command> [new|edit|rename]
       permission: commandtools.ctools
       permission-message: You don't have <permission>
       
-## TODO - Finir la gestion de l'outil avec NBT
-##      - Gérer la sauvegarde des outils
-##      - Gérer de multiples outils en même temps pour chaque joueur (ToolStore)

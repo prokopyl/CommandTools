@@ -19,6 +19,7 @@ public final class CommandTool implements ConfigurationSerializable
     private final String ownerName;
     private Material itemType;
     private final ArrayList<String> commands = new ArrayList<String>();
+    private boolean freshTool;
     
     public CommandTool(String sId, String sName, Material hItemType, String sOwnerName)
     {
@@ -26,7 +27,7 @@ public final class CommandTool implements ConfigurationSerializable
         itemType = hItemType;
         id = sId;
         name = sName;
-        commands.add("/chunk");
+        freshTool = true;
     }
     
     public ItemStack createItem()
@@ -40,9 +41,18 @@ public final class CommandTool implements ConfigurationSerializable
     {
         Location loc = player.getTargetBlock(null, 100).getLocation();
         
-        //virtualplayer.teleport(loc);
-        //virtualplayer.executeCommand(command);
+        if(commands.isEmpty())
+        {
+            notify("§7This tool has no command assigned. Use §f/ctool edit§7 to add some.", player);
+            return;
+        }
+        
         CommandTools.getPlugin().runVirtualPlayerCommands(commands, ownerName, loc);
+    }
+    
+    public void notify(String message, Player player)
+    {
+        player.sendMessage("§6" + "Tool" + ">§r " + message);
     }
     
     /*===== Getters & Setters =====*/
@@ -62,9 +72,20 @@ public final class CommandTool implements ConfigurationSerializable
         return name;
     }
     
-    public final void setName(String sName)
+    public void rename(String sId, String sName)
     {
+        id = sId;
         name = sName;
+    }
+    
+    public boolean getFreshTool()
+    {
+        return freshTool;
+    }
+    
+    public void setFreshTool(boolean nFresh)
+    {
+        freshTool = nFresh;
     }
     
     
@@ -93,6 +114,7 @@ public final class CommandTool implements ConfigurationSerializable
     
     static public boolean isCommandTool(ItemStack item)
     {
+        if(item.getType() == Material.AIR) return false;
         if(NBTUtils.getToolEditorMode(item) == true) return false;
         return !(NBTUtils.getCommandToolID(item).equals(""));
     }

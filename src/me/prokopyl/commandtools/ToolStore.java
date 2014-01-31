@@ -20,6 +20,7 @@ package me.prokopyl.commandtools;
 import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 
 public class ToolStore 
 {
@@ -34,6 +35,11 @@ public class ToolStore
     {
         PlayerToolStore store = getPlayerToolStore(playerName);
         return store.getTool(toolID);
+    }
+    
+    public CommandTool getTool(ItemStack itemTool)
+    {
+        return getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool));
     }
     
     public void addTool(CommandTool tool)

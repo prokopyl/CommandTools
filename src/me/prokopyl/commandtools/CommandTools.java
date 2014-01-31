@@ -14,6 +14,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -86,7 +90,7 @@ public void onPlayerUse(PlayerInteractEvent event)
     if(tool == null)
     {
         event.getPlayer().sendMessage("§4This tool does not exist in the Tool Database. This may indicate a corrupted savefile or tool database .");
-        //event.getPlayer().sendMessage("§4You can safely use $c/ctool delete $4to delete this tool.");
+        //event.getPlayer().sendMessage("§4You can safely use §c/ctool delete §4to delete this tool.");
         return;
     }
     
@@ -100,10 +104,9 @@ public void onItemDrop(PlayerDropItemEvent event)
     ItemStack itemTool = event.getItemDrop().getItemStack();
     if(CommandTool.isCommandTool(itemTool))
     {
+        //Must override NBT Data before dropping the item !
         ItemStack newItem = toolStore.getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool)).createItem();
         event.getItemDrop().setItemStack(newItem);
-        //event.getPlayer().sendMessage("You can't drop a CommandTool !");
-        //event.setCancelled(true);
     }
 }
 
@@ -120,8 +123,12 @@ public void onCToolCommand(Player sender, String[] args)
         
         if(!CommandTool.isCommandTool(itemTool)) return;
         
-        CommandTool tool = toolStore.getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool));
+        CommandTool tool = toolStore.getTool(itemTool);
         sender.setItemInHand(ToolEditor.createEditedCommandTool(tool));
+    }
+    else if(args[0].equalsIgnoreCase("rename"))
+    {
+        renameTool(sender, args);
     }
     else
     {
@@ -159,13 +166,86 @@ private void newCommandTool(Player player)
     playerInventory.setItem(firstEmptySlot, itemInHand);
     player.setItemInHand(newTool.createItem());
     
+    
     //newTool.notify("Tool successfuly created. Use /ctool edit to assign commands to this tool.");
+    
+}
+
+public void renameTool(Player player, String[] args)
+{
+    CommandTool tool = getToolInHand(player);
+    if(tool == null) return;
+    
+    String sNewName = "";
+    
+    if(args.length < 2)
+    {
+        player.sendMessage("$cYou must give a name to your tool.");
+        return;
+    }
+    
+    for(int i = 1; i < args.length; i++)
+    {
+        sNewName += args[i] + " ";
+    }
+    sNewName = sNewName.trim();
+    
+    tool.rename(toolStore.getNextAvailableToolID(sNewName, player.getName()), sNewName);
+    
+    player.setItemInHand(tool.createItem());
     
 }
 
 public void runVirtualPlayerCommands(List<String> sCommands, String sPlayerName, Location hLocation)
 {
     toolStore.runVirtualPlayerCommands(sCommands, sPlayerName, hLocation);
+}
+
+private CommandTool getToolInHand(Player player)
+{
+    ItemStack itemInHand = player.getItemInHand();
+    if(itemInHand.getType() == Material.AIR || !CommandTool.isCommandTool(itemInHand))
+    {
+        player.sendMessage("§cYou must have a tool in hand.");
+        return null;
+    }
+    
+    CommandTool tool = toolStore.getTool(itemInHand);
+    if(tool == null)
+    {
+        player.sendMessage("§4This tool does not exist in the Tool Database. This may indicate a corrupted savefile or tool database .");
+        //player.sendMessage("§4You can safely use §c/ctool delete §4to delete this tool.");
+        return null;
+    }
+    
+    return tool;
+    
+}
+
+@EventHandler(priority=EventPriority.HIGH)
+public void fixNBTInventoryEventWTF(InventoryClickEvent event)
+{
+    if(!(event.getWhoClicked() instanceof Player)) return;
+    Player player = (Player)event.getWhoClicked();
+    
+    if(!(event.getAction() == InventoryAction.PLACE_ALL && event.getClick() == ClickType.CREATIVE && event.getSlotType() == SlotType.QUICKBAR))
+    {
+        return;
+    }
+    
+    if(CommandTool.isCommandTool(event.getCurrentItem()))
+    {
+        CommandTool tool = toolStore.getTool(event.getCurrentItem());
+        if(tool != null)
+        {
+            if(tool.getFreshTool())
+            {
+                event.setCancelled(true);
+                tool.setFreshTool(false);
+            }
+        }
+    }
+    
 }
 
 }
