@@ -83,6 +83,13 @@ public void onPlayerUse(PlayerInteractEvent event)
     
     CommandTool tool = toolStore.getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool));
     
+    if(tool == null)
+    {
+        event.getPlayer().sendMessage("§4This tool does not exist in the Tool Database. This may indicate a corrupted savefile or tool database .");
+        //event.getPlayer().sendMessage("§4You can safely use $c/ctool delete $4to delete this tool.");
+        return;
+    }
+    
     tool.use(event.getPlayer());
     event.setCancelled(true);
 }
@@ -90,10 +97,13 @@ public void onPlayerUse(PlayerInteractEvent event)
 @EventHandler(priority=EventPriority.HIGH)
 public void onItemDrop(PlayerDropItemEvent event)
 {
-    if(CommandTool.isCommandTool(event.getItemDrop().getItemStack()))
+    ItemStack itemTool = event.getItemDrop().getItemStack();
+    if(CommandTool.isCommandTool(itemTool))
     {
-        event.getPlayer().sendMessage("You can't drop a CommandTool !");
-        event.setCancelled(true);
+        ItemStack newItem = toolStore.getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool)).createItem();
+        event.getItemDrop().setItemStack(newItem);
+        //event.getPlayer().sendMessage("You can't drop a CommandTool !");
+        //event.setCancelled(true);
     }
 }
 
