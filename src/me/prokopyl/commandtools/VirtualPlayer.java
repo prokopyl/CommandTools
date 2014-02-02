@@ -38,7 +38,6 @@ public VirtualPlayer(CraftServer cserver, MinecraftServer mcserver,
 {
         super(cserver, new EntityPlayer(mcserver, world, new GameProfile("0", s), iiw));
         toolStore = hToolStore;
-        this.setOp(true);
 }
 
 public VirtualPlayer(CraftServer cserver, EntityPlayer ep)
