@@ -1,6 +1,7 @@
 package me.prokopyl.commandtools;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,6 +58,10 @@ public class NBTUtils {
     {
         ItemMeta metaData = item.getItemMeta();
         metaData.setDisplayName(tool.getName());
+        ArrayList<String> lore = new ArrayList<String>();
+        lore.add("§6§l§nCommand Tool");
+        lore.add("§7" + tool.getCommands().size() + " lines");
+        metaData.setLore(lore);
         item.setItemMeta(metaData);
         NBTTagCompound tag = getNBTTagRW(item);
         tag.setString(NBT_ID_TAG_NAME, tool.getId());

@@ -17,9 +17,11 @@
 
 package me.prokopyl.commandtools;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class ToolStore 
@@ -39,12 +41,30 @@ public class ToolStore
     
     public CommandTool getTool(ItemStack itemTool)
     {
+        if(itemTool.getType() == Material.AIR) return null;
         return getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool));
+    }
+    
+    public ArrayList<CommandTool> getToolList(String playerName)
+    {
+        PlayerToolStore store = getPlayerToolStore(playerName);
+        if(store == null) return null;
+        return store.getToolList();
     }
     
     public void addTool(CommandTool tool)
     {
         getPlayerToolStore(tool.getOwnerName()).addTool(tool);
+    }
+    
+    public void cloneTool(String toolID, String sourcePlayerName, String destinationPlayerName)
+    {
+        getPlayerToolStore(destinationPlayerName).addTool(getPlayerToolStore(sourcePlayerName).getClonedTool(toolID, destinationPlayerName));
+    }
+    
+    public void deleteTool(CommandTool tool)
+    {
+        getPlayerToolStore(tool.getOwnerName()).deleteTool(tool);
     }
     
     public void save()
@@ -67,9 +87,9 @@ public class ToolStore
         return getPlayerToolStore(playerName).getNextAvailableToolID(toolID);
     }
     
-    public void runVirtualPlayerCommands(List<String> sCommands, String sPlayerName, Location hLocation)
+    public void runVirtualPlayerCommands(List<String> sCommands, String sPlayerName, Location hLocation, CommandTool tool)
     {
-        getPlayerToolStore(sPlayerName).runCommands(sCommands, hLocation);
+        getPlayerToolStore(sPlayerName).runCommands(sCommands, hLocation, tool);
     }
     
     private PlayerToolStore getPlayerToolStore(String playerName)

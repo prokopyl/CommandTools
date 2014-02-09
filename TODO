@@ -1,2 +1,4 @@
 * BUG: Tools dropped from creative inventory sill lose their NBT data
-* BUG: Tools lose their NBT data when using creative inventory
+
+--Next Versions :
+* NEW: Use an inventory GUI for /ctool list

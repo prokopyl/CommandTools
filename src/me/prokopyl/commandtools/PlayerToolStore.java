@@ -40,6 +40,7 @@ public class PlayerToolStore implements ConfigurationSerializable
     private final String playerName;
     private final LinkedList<CommandTool> toolList;
     private VirtualPlayer virtualPlayer;
+    private CommandTool currentTool;
     
     public PlayerToolStore(String sPlayerName)
     {
@@ -62,9 +63,28 @@ public class PlayerToolStore implements ConfigurationSerializable
         return null;
     }
     
+    public ArrayList<CommandTool> getToolList()
+    {
+        ArrayList<CommandTool> tools = new ArrayList<CommandTool>();
+        tools.addAll(toolList);
+        return tools;
+    }
+    
     public void addTool(CommandTool newTool)
     {
         toolList.add(newTool);
+    }
+    
+    public CommandTool getClonedTool(String toolName, String destinationPlayerName)
+    {
+        CommandTool hTool = getTool(toolName);
+        CommandTool newTool = new CommandTool(getNextAvailableToolID(hTool.getName()), hTool, destinationPlayerName);
+        return newTool;
+    }
+    
+    public void deleteTool(CommandTool tool)
+    {
+        toolList.remove(tool);
     }
     
     public String getNextAvailableToolID(String toolID)
@@ -91,14 +111,22 @@ public class PlayerToolStore implements ConfigurationSerializable
         return false;
     }
     
-    public void runCommands(List<String> aCommands, Location hLocation)
+    public void runCommands(List<String> aCommands, Location hLocation, CommandTool tool)
     {
+        currentTool = tool;
         if(virtualPlayer == null) virtualPlayer = VirtualPlayer.createVirtualPlayer(playerName, hLocation, this);
         virtualPlayer.moveTo(hLocation);
         
-        for(String sCommand : aCommands)
+        Player player = Bukkit.getPlayerExact(playerName);
+        
+        if(player == null)
         {
-            virtualPlayer.executeCommand(sCommand);
+            System.err.println("Attempted to run commands as a player that does not exist !");
+        }
+        
+        if(!Interpretor.Execute(aCommands, virtualPlayer))
+        {
+            notify("§7This tool has no command assigned. Use §f/ctool edit§7 to add some.");
         }
     }
     
@@ -106,7 +134,9 @@ public class PlayerToolStore implements ConfigurationSerializable
     {
         Player player = Bukkit.getPlayerExact(playerName);
         if(player == null) return;
-        player.sendMessage("§6" + "Tool" + ">§r " + message);
+        String sToolName = "Tool";
+        if(currentTool != null) sToolName = currentTool.getName();
+        player.sendMessage("§6" + sToolName + ">§r " + message);
     }
     
     public void setToolsFresh(boolean fresh)

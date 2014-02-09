@@ -17,6 +17,7 @@ public class VirtualPlayer extends CraftPlayer
 {
 private PlayerToolStore toolStore;
 private Location location;
+private boolean isCommandRunning;
     
 public static VirtualPlayer createVirtualPlayer(String name, Location location, PlayerToolStore hToolStore)
 {
@@ -37,12 +38,8 @@ public VirtualPlayer(CraftServer cserver, MinecraftServer mcserver,
                 WorldServer world, String s, PlayerInteractManager iiw, PlayerToolStore hToolStore)
 {
         super(cserver, new EntityPlayer(mcserver, world, new GameProfile("0", s), iiw));
+        this.isCommandRunning = false;
         toolStore = hToolStore;
-}
-
-public VirtualPlayer(CraftServer cserver, EntityPlayer ep)
-{
-        super(cserver, ep);
 }
 
 @Override
@@ -53,7 +50,7 @@ public void updateInventory()
 
 @Override
 public void sendMessage(String s){
-        toolStore.notify(s);
+        if(isCommandRunning) toolStore.notify(s);
 }
 
 public void moveTo(Location hloc){
@@ -72,11 +69,14 @@ public void setLocation(Location hLoc)
     location = hLoc;
 }
 
-public void executeCommand(String command)
+public void executeCommand(String sCommand)
 {
-    PlayerCommandPreprocessEvent pcpe = new PlayerCommandPreprocessEvent(this, "/" + command);
+    isCommandRunning = true;
+    PlayerCommandPreprocessEvent pcpe = new PlayerCommandPreprocessEvent(this, sCommand);
     Bukkit.getPluginManager().callEvent(pcpe);
-    Bukkit.getServer().dispatchCommand(this, command);
+    if(sCommand.charAt(0) == '/') sCommand = sCommand.substring(1);
+    Bukkit.getServer().dispatchCommand(this, sCommand);
+    isCommandRunning = false;
 
 }
 

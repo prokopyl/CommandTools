@@ -2,7 +2,9 @@
 package me.prokopyl.commandtools;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +23,8 @@ public final class CommandTool implements ConfigurationSerializable
     private final ArrayList<String> commands = new ArrayList<String>();
     private boolean freshTool;
     
+    private static HashSet<Byte> TRANSPARENT_BLOCKS = new HashSet<Byte>();
+    
     public CommandTool(String sId, String sName, Material hItemType, String sOwnerName)
     {
         ownerName = sOwnerName;
@@ -28,6 +32,18 @@ public final class CommandTool implements ConfigurationSerializable
         id = sId;
         name = sName;
         freshTool = true;
+        if(TRANSPARENT_BLOCKS.isEmpty())
+        {
+            TRANSPARENT_BLOCKS.add((byte)0);
+            TRANSPARENT_BLOCKS.add((byte)8);
+            TRANSPARENT_BLOCKS.add((byte)9);
+        }
+    }
+    
+    public CommandTool(String sId, CommandTool otherTool, String sOwnerName)
+    {
+        this(sId, otherTool.getName(), otherTool.getType(), sOwnerName);
+        setCommands(otherTool.getCommands());
     }
     
     public ItemStack createItem()
@@ -39,15 +55,9 @@ public final class CommandTool implements ConfigurationSerializable
     
     public void use(Player player)
     {
-        Location loc = player.getTargetBlock(null, 100).getLocation();
+        Location loc = player.getTargetBlock(TRANSPARENT_BLOCKS, 100).getLocation();
         
-        if(commands.isEmpty())
-        {
-            notify("§7This tool has no command assigned. Use §f/ctool edit§7 to add some.", player);
-            return;
-        }
-        
-        CommandTools.getPlugin().runVirtualPlayerCommands(commands, ownerName, loc);
+        CommandTools.getPlugin().runVirtualPlayerCommands(commands, ownerName, loc, this);
     }
     
     public void notify(String message, Player player)
@@ -72,6 +82,11 @@ public final class CommandTool implements ConfigurationSerializable
         return name;
     }
     
+    public Material getType()
+    {
+        return itemType;
+    }
+    
     public void rename(String sId, String sName)
     {
         id = sId;
@@ -92,22 +107,14 @@ public final class CommandTool implements ConfigurationSerializable
     public List<String> getCommands()
     {
         List<String> listCommands = new ArrayList<String>();
-        for(String sCommand : commands)
-        {
-            listCommands.add("/" + sCommand);
-        }
+        listCommands.addAll(commands);
         return listCommands;
     }
     
     public void setCommands(List<String> newCommands)
     {
         commands.clear();
-        for(String sCommand : newCommands)
-        {
-            if(sCommand.charAt(0) == '/') sCommand = sCommand.substring(1);
-            commands.add(sCommand);
-            
-        }
+        commands.addAll(newCommands);
     }
     
     /*===== CommandTools Utils =====*/

@@ -90,8 +90,8 @@ public void onPlayerUse(PlayerInteractEvent event)
     
     if(tool == null)
     {
-        event.getPlayer().sendMessage("§4This tool does not exist in the Tool Database. This may indicate a corrupted savefile or tool database .");
-        //event.getPlayer().sendMessage("§4You can safely use §c/ctool delete §4to delete this tool.");
+        event.getPlayer().sendMessage("§4This tool does not exist in the Tool Database. This may indicate a corrupted savefile or tool database.");
+        event.getPlayer().sendMessage("§4You can safely use §c/ctool delete §4to delete this tool.");
         return;
     }
     
@@ -131,6 +131,22 @@ public void onCToolCommand(Player sender, String[] args)
     {
         renameTool(sender, args);
     }
+    else if(args[0].equalsIgnoreCase("get"))
+    {
+        if(args.length < 2)
+        {
+            return;
+        }
+        giveTool(sender, args[1]);
+    }
+    else if(args[0].equalsIgnoreCase("list"))
+    {
+        listTools(sender);
+    }
+    else if(args[0].equalsIgnoreCase("delete"))
+    {
+        deleteTool(sender, sender.getItemInHand());
+    }
     else
     {
         sender.sendMessage("§cUnknown action.");
@@ -167,9 +183,59 @@ private void newCommandTool(Player player)
     playerInventory.setItem(firstEmptySlot, itemInHand);
     player.setItemInHand(newTool.createItem());
     
+}
+
+private void giveTool(Player player, String toolName)
+{
+    if(player.getInventory().firstEmpty() < 0)
+    {
+        player.sendMessage("§cYour inventory is full ! You must have some space left in order to get a tool.");
+        return;
+    }
     
-    //newTool.notify("Tool successfuly created. Use /ctool edit to assign commands to this tool.");
+    CommandTool tool = toolStore.getTool(player.getName(), toolName);
     
+    if(tool == null)
+    {
+        player.sendMessage("$cThis tool does not exist.");
+        return;
+    }
+    
+    player.getInventory().addItem(tool.createItem());
+}
+
+private void listTools(Player player)
+{
+    List<CommandTool> toolList = toolStore.getToolList(player.getName());
+    if(toolList == null|| toolList.isEmpty())
+    {
+        player.sendMessage("§7No tool found.");
+        return;
+    }
+    
+    player.sendMessage("§7" + toolList.size() + " tools found.");
+    
+    String sToolList = toolList.get(0).getId();
+    for(int i = 1; i < toolList.size(); i++)
+    {
+        sToolList += "§7, §r" + toolList.get(i).getId();
+    }
+    player.sendMessage(sToolList);
+}
+
+private void deleteTool(Player player, ItemStack item)
+{
+    if(!CommandTool.isCommandTool(item))
+    {
+        player.sendMessage("§4This is not a valid command tool.");
+        return;
+    }
+    CommandTool tool = toolStore.getTool(item);
+    
+    if(tool != null) toolStore.deleteTool(tool);
+    
+    player.setItemInHand(new ItemStack(Material.AIR));
+    player.sendMessage("§7Tool successfully deleted.");
 }
 
 public void renameTool(Player player, String[] args)
@@ -197,9 +263,9 @@ public void renameTool(Player player, String[] args)
     
 }
 
-public void runVirtualPlayerCommands(List<String> sCommands, String sPlayerName, Location hLocation)
+public void runVirtualPlayerCommands(List<String> sCommands, String sPlayerName, Location hLocation, CommandTool tool)
 {
-    toolStore.runVirtualPlayerCommands(sCommands, sPlayerName, hLocation);
+    toolStore.runVirtualPlayerCommands(sCommands, sPlayerName, hLocation, tool);
 }
 
 private CommandTool getToolInHand(Player player)

@@ -2,13 +2,13 @@
 
 main: me.prokopyl.commandtools.CommandTools
 name: CommandTools
-version: 0.0.9a
+version: 1_beta
 author: ProkopyL
 
 commands:
    ctool:
       description: Manages and creates Command Tools.
-      usage: /<command> [new|edit|rename]
+      usage: /<command> [new|get|list|edit|rename|delete]
       permission: commandtools.ctools
       permission-message: You don't have <permission>
       
