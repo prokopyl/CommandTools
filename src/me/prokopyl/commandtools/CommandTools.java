@@ -84,15 +84,27 @@ public void onPlayerUse(PlayerInteractEvent event)
     if(event.getAction() != Action.RIGHT_CLICK_AIR) return;
     if(!CommandTool.isCommandTool(event.getItem())) return;
     
+    if(!event.getPlayer().hasPermission("commandtools.ctools"))
+    {
+        event.getPlayer().sendMessage("§cYou are not allowed to use Command Tools.");
+        return;
+    }
+    
     ItemStack itemTool = event.getItem();
     
-    CommandTool tool = toolStore.getTool(NBTUtils.getCommandToolOwner(itemTool), NBTUtils.getCommandToolID(itemTool));
+    CommandTool tool = toolStore.getTool(itemTool);
     
     if(tool == null)
     {
         event.getPlayer().sendMessage("§4This tool does not exist in the Tool Database. This may indicate a corrupted savefile or tool database.");
         event.getPlayer().sendMessage("§4You can safely use §c/ctool delete §4to delete this tool.");
         return;
+    }
+    
+    if(!(tool.getOwnerName().equals(event.getPlayer().getName())))
+    {
+        tool = toolStore.cloneTool(itemTool, event.getPlayer().getName());
+        event.getPlayer().setItemInHand(tool.createItem());
     }
     
     tool.use(event.getPlayer());
@@ -197,7 +209,7 @@ private void giveTool(Player player, String toolName)
     
     if(tool == null)
     {
-        player.sendMessage("$cThis tool does not exist.");
+        player.sendMessage("§cThis tool does not exist.");
         return;
     }
     
@@ -247,7 +259,7 @@ public void renameTool(Player player, String[] args)
     
     if(args.length < 2)
     {
-        player.sendMessage("$cYou must give a name to your tool.");
+        player.sendMessage("§cYou must give a name to your tool.");
         return;
     }
     
@@ -317,6 +329,7 @@ public void fixNBTInventoryEventWTF(InventoryClickEvent event)
 @EventHandler(priority=EventPriority.HIGH)
 public void playerLogin(PlayerLoginEvent event)
 {
+    if(!event.getPlayer().hasPermission("commandtools.ctools")) return;
     toolStore.setPlayersToolFresh(event.getPlayer().getName(), true);
 }
 

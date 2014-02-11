@@ -75,10 +75,10 @@ public class PlayerToolStore implements ConfigurationSerializable
         toolList.add(newTool);
     }
     
-    public CommandTool getClonedTool(String toolName, String destinationPlayerName)
+    public CommandTool getClonedTool(String toolName, String destinationPlayerName, String newToolName)
     {
-        CommandTool hTool = getTool(toolName);
-        CommandTool newTool = new CommandTool(getNextAvailableToolID(hTool.getName()), hTool, destinationPlayerName);
+        CommandTool hTool = CommandTools.getPlugin().getTool(playerName, toolName);
+        CommandTool newTool = new CommandTool(newToolName, hTool, destinationPlayerName);
         return newTool;
     }
     

@@ -57,9 +57,18 @@ public class ToolStore
         getPlayerToolStore(tool.getOwnerName()).addTool(tool);
     }
     
-    public void cloneTool(String toolID, String sourcePlayerName, String destinationPlayerName)
+    public CommandTool cloneTool(ItemStack tool, String destinationPlayerName)
     {
-        getPlayerToolStore(destinationPlayerName).addTool(getPlayerToolStore(sourcePlayerName).getClonedTool(toolID, destinationPlayerName));
+        return cloneTool( NBTUtils.getCommandToolID(tool), NBTUtils.getCommandToolOwner(tool), destinationPlayerName);
+    }
+    
+    public CommandTool cloneTool(String toolID, String sourcePlayerName, String destinationPlayerName)
+    {
+        PlayerToolStore sourcePlayerStore = getPlayerToolStore(sourcePlayerName);
+        PlayerToolStore destinationPlayerStore = getPlayerToolStore(destinationPlayerName);
+        CommandTool clonedTool = sourcePlayerStore.getClonedTool(toolID, destinationPlayerName, destinationPlayerStore.getNextAvailableToolID(toolID));
+        destinationPlayerStore.addTool(clonedTool);
+        return clonedTool;
     }
     
     public void deleteTool(CommandTool tool)
