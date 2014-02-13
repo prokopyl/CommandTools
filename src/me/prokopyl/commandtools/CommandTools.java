@@ -137,6 +137,7 @@ public void onCToolCommand(Player sender, String[] args)
         if(!CommandTool.isCommandTool(itemTool)) return;
         
         CommandTool tool = toolStore.getTool(itemTool);
+        tool.setFreshEditTool(true);
         sender.setItemInHand(ToolEditor.createEditedCommandTool(tool));
     }
     else if(args[0].equalsIgnoreCase("rename"))
@@ -149,7 +150,7 @@ public void onCToolCommand(Player sender, String[] args)
         {
             return;
         }
-        giveTool(sender, args[1]);
+        giveTool(sender, args);
     }
     else if(args[0].equalsIgnoreCase("list"))
     {
@@ -171,6 +172,11 @@ public void onCToolCommand(Player sender, String[] args)
 public CommandTool getTool(String playerName, String toolId)
 {
     return toolStore.getTool(playerName, toolId);
+}
+
+public CommandTool getTool(ItemStack item)
+{
+    return toolStore.getTool(item);
 }
 
 private void newCommandTool(Player player)
@@ -197,13 +203,27 @@ private void newCommandTool(Player player)
     
 }
 
-private void giveTool(Player player, String toolName)
+private void giveTool(Player player, String[] args)
 {
     if(player.getInventory().firstEmpty() < 0)
     {
         player.sendMessage("§cYour inventory is full ! You must have some space left in order to get a tool.");
         return;
     }
+    
+    String toolName = "";
+    
+    if(args.length < 2)
+    {
+        player.sendMessage("§cYou must give a name to get your tool.");
+        return;
+    }
+    
+    for(int i = 1; i < args.length; i++)
+    {
+        toolName += args[i] + " ";
+    }
+    toolName = toolName.trim();
     
     CommandTool tool = toolStore.getTool(player.getName(), toolName);
     
@@ -212,7 +232,7 @@ private void giveTool(Player player, String toolName)
         player.sendMessage("§cThis tool does not exist.");
         return;
     }
-    
+    tool.setFreshTool(true);
     player.getInventory().addItem(tool.createItem());
 }
 
@@ -239,7 +259,7 @@ private void deleteTool(Player player, ItemStack item)
 {
     if(!CommandTool.isCommandTool(item))
     {
-        player.sendMessage("§4This is not a valid command tool.");
+        player.sendMessage("§cThis is not a valid command tool.");
         return;
     }
     CommandTool tool = toolStore.getTool(item);
@@ -271,6 +291,7 @@ public void renameTool(Player player, String[] args)
     
     tool.rename(toolStore.getNextAvailableToolID(sNewName, player.getName()), sNewName);
     
+    tool.setFreshTool(true);
     player.setItemInHand(tool.createItem());
     
 }

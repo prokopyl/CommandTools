@@ -9,9 +9,14 @@ import java.util.logging.Logger;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.inventory.ItemStack;
@@ -40,9 +45,6 @@ public static ItemStack createEditedCommandTool(CommandTool tool) throws NoSuchF
     BookMeta metaData = (BookMeta) book.getItemMeta();
     metaData.setDisplayName("§6[Edition]§r" + tool.getName());
     
-    String[] aLore = {"Hi !"};
-    
-    metaData.setLore(Arrays.asList(aLore));
     metaData.setPages(commandsToPages(tool.getCommands()));
     
     book.setItemMeta(metaData);
@@ -73,6 +75,8 @@ public void onBookEdit(PlayerEditBookEvent event)
         ItemStack book = event.getPlayer().getItemInHand();
         CommandTool tool = plugin.getTool(NBTUtils.getCommandToolOwner(book), NBTUtils.getCommandToolID(book));
         tool.setCommands(pagesToCommands(event.getNewBookMeta().getPages()));
+        tool.setFreshEditTool(false);
+        tool.setFreshTool(true);
         event.getPlayer().setItemInHand(tool.createItem());
         event.getPlayer().sendMessage("Commands successfuly updated.");
     }
@@ -82,6 +86,32 @@ public static boolean isToolEditor(ItemStack hItem)
 {
     if(hItem.getType() != Material.BOOK_AND_QUILL) return false;
     return NBTUtils.getToolEditorMode(hItem);
+}
+
+@EventHandler(priority=EventPriority.HIGH)
+public void fixNBTInventoryEventWTF(InventoryClickEvent event)
+{
+    if(!(event.getWhoClicked() instanceof Player)) return;
+    Player player = (Player)event.getWhoClicked();
+    
+    if(!(event.getAction() == InventoryAction.PLACE_ALL && event.getClick() == ClickType.CREATIVE && event.getSlotType() == InventoryType.SlotType.QUICKBAR))
+    {
+        return;
+    }
+    
+    if(isToolEditor(event.getCurrentItem()))
+    {
+        CommandTool tool = CommandTools.getPlugin().getTool(event.getCurrentItem());
+        if(tool != null)
+        {
+            if(tool.getFreshEditTool())
+            {
+                event.setCancelled(true);
+                tool.setFreshTool(false);
+            }
+        }
+    }
+    
 }
 
 private static List<String> commandsToPages(List<String> commands)

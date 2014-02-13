@@ -22,6 +22,7 @@ public final class CommandTool implements ConfigurationSerializable
     private Material itemType;
     private final ArrayList<String> commands = new ArrayList<String>();
     private boolean freshTool;
+    private boolean freshEditTool;
     
     private static HashSet<Byte> TRANSPARENT_BLOCKS = new HashSet<Byte>();
     
@@ -32,6 +33,7 @@ public final class CommandTool implements ConfigurationSerializable
         id = sId;
         name = sName;
         freshTool = true;
+        freshEditTool = true;
         if(TRANSPARENT_BLOCKS.isEmpty())
         {
             TRANSPARENT_BLOCKS.add((byte)0);
@@ -103,6 +105,15 @@ public final class CommandTool implements ConfigurationSerializable
         freshTool = nFresh;
     }
     
+    public boolean getFreshEditTool()
+    {
+        return freshEditTool;
+    }
+    
+    public void setFreshEditTool(boolean nFresh)
+    {
+        freshEditTool = nFresh;
+    }
     
     public List<String> getCommands()
     {
