@@ -24,34 +24,33 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import me.prokopyl.commandtools.interpreter.Environment;
+import me.prokopyl.commandtools.interpreter.Interpreter;
+import me.prokopyl.commandtools.interpreter.VirtualPlayer;
 import org.bukkit.configuration.ConfigurationSection;
-
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.entity.Player;
 
 public class PlayerToolStore implements ConfigurationSerializable
 {
-    private final String playerName;
-    private final LinkedList<CommandTool> toolList;
-    private VirtualPlayer virtualPlayer;
-    private CommandTool currentTool;
+    private final UUID playerUUID;
+    private final LinkedList<CommandTool> toolList = new LinkedList<CommandTool>();
+    private final Environment environment;
     
-    public PlayerToolStore(String sPlayerName)
+    public PlayerToolStore(UUID playerUUID)
     {
-        playerName = sPlayerName;
-        toolList = new LinkedList<CommandTool>();
+        this.playerUUID = playerUUID;
+        environment = new Environment(playerUUID);
         loadToolsFile();
     }
     
-    public String getPlayerName()
+    public UUID getPlayerUUID()
     {
-        return playerName;
+        return playerUUID;
     }
     
     public CommandTool getTool(String toolID)
@@ -70,15 +69,20 @@ public class PlayerToolStore implements ConfigurationSerializable
         return tools;
     }
     
+    public Environment getEnvironment()
+    {
+        return environment;
+    }
+    
     public void addTool(CommandTool newTool)
     {
         toolList.add(newTool);
     }
     
-    public CommandTool getClonedTool(String toolName, String destinationPlayerName, String newToolName)
+    public CommandTool getClonedTool(String toolName, UUID destinationPlayerUUID, String newToolName)
     {
-        CommandTool hTool = CommandTools.getPlugin().getTool(playerName, toolName);
-        CommandTool newTool = new CommandTool(newToolName, hTool, destinationPlayerName);
+        CommandTool hTool = ToolManager.getTool(playerUUID, toolName);
+        CommandTool newTool = new CommandTool(newToolName, hTool, destinationPlayerUUID);
         return newTool;
     }
     
@@ -111,42 +115,6 @@ public class PlayerToolStore implements ConfigurationSerializable
         return false;
     }
     
-    public void runCommands(List<String> aCommands, Location hLocation, CommandTool tool)
-    {
-        currentTool = tool;
-        if(virtualPlayer == null) virtualPlayer = VirtualPlayer.createVirtualPlayer(playerName, hLocation, this);
-        virtualPlayer.moveTo(hLocation);
-        
-        Player player = Bukkit.getPlayerExact(playerName);
-        
-        if(player == null)
-        {
-            System.err.println("Attempted to run commands as a player that does not exist !");
-        }
-        
-        if(!Interpretor.Execute(aCommands, virtualPlayer))
-        {
-            notify("§7This tool has no command assigned. Use §f/ctool edit§7 to add some.");
-        }
-    }
-    
-    public final void notify(String message)
-    {
-        Player player = Bukkit.getPlayerExact(playerName);
-        if(player == null) return;
-        String sToolName = "Tool";
-        if(currentTool != null) sToolName = currentTool.getName();
-        player.sendMessage("§6" + sToolName + ">§r " + message);
-    }
-    
-    public void setToolsFresh(boolean fresh)
-    {
-        for(CommandTool tTool : toolList)
-        {
-            tTool.setFreshTool(fresh);
-        }
-    }
-    
     /* ****** Serializing ***** */
     
     @Override
@@ -154,7 +122,6 @@ public class PlayerToolStore implements ConfigurationSerializable
     {
         Map<String, Object> map = new HashMap<String, Object>();
         ArrayList<Map> list = new ArrayList<Map>();
-        map.put("playerName", playerName);
         for(CommandTool tTool : toolList)
         {
             list.add(tTool.serialize());
@@ -170,7 +137,7 @@ public class PlayerToolStore implements ConfigurationSerializable
         if(list == null) return;
         for(Map<String, Object> tMap : list)
         {
-            toolList.add(new CommandTool(tMap, playerName));
+            toolList.add(new CommandTool(tMap, playerUUID));
         }
     }
     
@@ -206,7 +173,7 @@ public class PlayerToolStore implements ConfigurationSerializable
     {
         if(toolsFile == null)
         {
-            toolsFile = new File(getToolsDir(), playerName + ".yml");
+            toolsFile = new File(getToolsDir(), playerUUID.toString() + ".yml");
             if(!toolsFile.exists()) saveToolsFile();
         }
         toolConfig = YamlConfiguration.loadConfiguration(toolsFile);

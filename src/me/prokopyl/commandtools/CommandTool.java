@@ -2,64 +2,65 @@
 package me.prokopyl.commandtools;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
+import java.util.UUID;
+import me.prokopyl.commandtools.attributes.ToolAttribute;
+import me.prokopyl.commandtools.interpreter.Interpreter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public final class CommandTool implements ConfigurationSerializable
 {
     private String name;
     private String id;
-    private final String ownerName;
+    private final UUID ownerUUID;
     private Material itemType;
     private final ArrayList<String> commands = new ArrayList<String>();
-    private boolean freshTool;
-    private boolean freshEditTool;
     
-    private static HashSet<Byte> TRANSPARENT_BLOCKS = new HashSet<Byte>();
     
-    public CommandTool(String sId, String sName, Material hItemType, String sOwnerName)
+    public CommandTool(String sId, String sName, Material hItemType, UUID ownerUUID)
     {
-        ownerName = sOwnerName;
+        this.ownerUUID = ownerUUID;
         itemType = hItemType;
         id = sId;
         name = sName;
-        freshTool = true;
-        freshEditTool = true;
-        if(TRANSPARENT_BLOCKS.isEmpty())
-        {
-            TRANSPARENT_BLOCKS.add((byte)0);
-            TRANSPARENT_BLOCKS.add((byte)8);
-            TRANSPARENT_BLOCKS.add((byte)9);
-        }
+        
     }
     
-    public CommandTool(String sId, CommandTool otherTool, String sOwnerName)
+    public CommandTool(String sId, CommandTool otherTool, UUID ownerUUID)
     {
-        this(sId, otherTool.getName(), otherTool.getType(), sOwnerName);
+        this(sId, otherTool.getName(), otherTool.getType(), ownerUUID);
         setCommands(otherTool.getCommands());
     }
     
     public ItemStack createItem()
     {
-        ItemStack item = NBTUtils.createCraftItemStack(itemType, 1);
-        NBTUtils.setCommandToolData(item, this);
-        return item;
+        ItemStack item = new ItemStack(itemType, 1);
+        setCommandToolData(item);
+        return ToolAttribute.toItemStack(this, item);
+    }
+    
+    private void setCommandToolData(ItemStack item)
+    {
+        ItemMeta metaData = item.getItemMeta();
+        metaData.setDisplayName(name);
+        ArrayList<String> lore = new ArrayList<String>();
+        lore.add("§6§l§nCommand Tool");
+        lore.add("§7" + commands.size() + " lines");
+        metaData.setLore(lore);
+        item.setItemMeta(metaData);
     }
     
     public void use(Player player)
     {
-        Location loc = player.getTargetBlock(TRANSPARENT_BLOCKS, 100).getLocation();
-        
-        CommandTools.getPlugin().runVirtualPlayerCommands(commands, ownerName, loc, this);
+        Interpreter.Execute(this, player);
     }
     
     public void notify(String message, Player player)
@@ -69,9 +70,9 @@ public final class CommandTool implements ConfigurationSerializable
     
     /*===== Getters & Setters =====*/
     
-    public String getOwnerName()
+    public UUID getOwnerUUID()
     {
-        return ownerName;
+        return ownerUUID;
     }
     
     public String getId()
@@ -95,26 +96,6 @@ public final class CommandTool implements ConfigurationSerializable
         name = sName;
     }
     
-    public boolean getFreshTool()
-    {
-        return freshTool;
-    }
-    
-    public void setFreshTool(boolean nFresh)
-    {
-        freshTool = nFresh;
-    }
-    
-    public boolean getFreshEditTool()
-    {
-        return freshEditTool;
-    }
-    
-    public void setFreshEditTool(boolean nFresh)
-    {
-        freshEditTool = nFresh;
-    }
-    
     public List<String> getCommands()
     {
         List<String> listCommands = new ArrayList<String>();
@@ -133,15 +114,17 @@ public final class CommandTool implements ConfigurationSerializable
     static public boolean isCommandTool(ItemStack item)
     {
         if(item.getType() == Material.AIR) return false;
-        if(NBTUtils.getToolEditorMode(item) == true) return false;
-        return !(NBTUtils.getCommandToolID(item).equals(""));
+        ToolAttribute attribute = ToolAttribute.fromItemStack(item);
+        if(attribute == null) return false;
+        if(attribute.isToolEditor()) return false;
+        return true;
     }
     
     /*===== Serializable object =====*/
-    public CommandTool(Map<String, Object> map, String sOwnerName)
+    public CommandTool(Map<String, Object> map, UUID ownerUUID)
     {
         //this(sName, hItem, hOwner);
-        this((String) map.get("id"),(String) map.get("name"), Material.getMaterial((String) map.get("material")), (String) sOwnerName);
+        this((String) map.get("id"),(String) map.get("name"), Material.getMaterial((String) map.get("material")), ownerUUID);
         
         setCommands((List<String>) map.get("commands"));
         

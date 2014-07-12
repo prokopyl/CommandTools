@@ -1,4 +1,18 @@
-* BUG: Tools dropped from creative inventory sill lose their NBT data
+* BUG: Tools don't take data value in consideration when using /ctool new
+* BUG: Tools don't take the Block click into account
 
 --Next Versions :
+
+* NEW: Add a /ctool remove command
 * NEW: Use an inventory GUI for /ctool list
+* NEW: Ability to disable command tools.
+* NEW: Add a confirmation message to /ctool delete
+* NEW: Using /ctool edit to a tool in edition mode reverts it back with no change
+* NEW: Add notions of kits (group of tools that can be given at once)
+* NEW: Add a /ctool give command
+* NEW: Add %x %y %z selectors
+* NEW: Add a message if /ctool edit is not used on a ctool.
+* NEW: Add support for migration to UUID-based player identification.
+* NEW: Add support for migration to custom attribute based tools.
+
+* OPT: Code refactoring.

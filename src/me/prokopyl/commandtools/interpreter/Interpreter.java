@@ -15,25 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.prokopyl.commandtools;
+package me.prokopyl.commandtools.interpreter;
 
-import java.util.List;
+import me.prokopyl.commandtools.CommandTool;
+import me.prokopyl.commandtools.ToolManager;
+import org.bukkit.entity.Player;
 
-public class Interpretor 
+public class Interpreter 
 {
-    static public boolean Execute(List<String> aCommands, VirtualPlayer virtualPlayer)
+    static public void Execute(CommandTool tool, Player player)
     {
-        boolean hasExecutedSomething = false;
-        if(aCommands.isEmpty()) return false;
-        for(String sCommand : aCommands)
+        Environment environment = ToolManager.getEnvironment(tool.getOwnerUUID());
+        environment.init(tool, player);
+        
+        for(String sCommand : tool.getCommands())
         {
             if(!isIgnored(sCommand))
             {
-                virtualPlayer.executeCommand(sCommand);
-                hasExecutedSomething = true;
+                environment.executeCommand(sCommand);
             }
         }
-        return hasExecutedSomething;
+        
+        environment.exit();
     }
     
     static public boolean isIgnored(String sCommand)

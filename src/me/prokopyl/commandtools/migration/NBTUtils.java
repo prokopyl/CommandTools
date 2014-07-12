@@ -1,13 +1,14 @@
-package me.prokopyl.commandtools;
+package me.prokopyl.commandtools.migration;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.minecraft.server.v1_7_R1.NBTTagCompound;
+import me.prokopyl.commandtools.CommandTool;
+import net.minecraft.server.v1_7_R3.NBTTagCompound;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -15,7 +16,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class NBTUtils {
     
     private static final String NBT_OWNER_TAG_NAME = "CommandToolOwner";
-    //private static final String NBT_NAME_TAG_NAME = "CommandToolName";
     private static final String NBT_ID_TAG_NAME = "CommandToolId";
     private static final String NBT_EDITION_TAG_NAME = "CommandToolEdition";
     
@@ -34,14 +34,14 @@ public class NBTUtils {
         getNBTTagRW(item).setString(NBT_ID_TAG_NAME, owner);
     }
     
-    public static String getCommandToolOwner(ItemStack item)
+    public static UUID getCommandToolOwner(ItemStack item)
     {
-        return getNBTTagRO(item).getString(NBT_OWNER_TAG_NAME);
+        return UUID.fromString(getNBTTagRO(item).getString(NBT_OWNER_TAG_NAME));
     }
     
-    public static void setCommandToolOwner(ItemStack item, String owner)
+    public static void setCommandToolOwner(ItemStack item, UUID ownerUUID)
     {
-        getNBTTagRW(item).setString(NBT_OWNER_TAG_NAME, owner);
+        getNBTTagRW(item).setString(NBT_OWNER_TAG_NAME, ownerUUID.toString());
     }
     
     public static boolean getToolEditorMode(ItemStack item)
@@ -65,12 +65,12 @@ public class NBTUtils {
         item.setItemMeta(metaData);
         NBTTagCompound tag = getNBTTagRW(item);
         tag.setString(NBT_ID_TAG_NAME, tool.getId());
-        tag.setString(NBT_OWNER_TAG_NAME, tool.getOwnerName());
+        tag.setString(NBT_OWNER_TAG_NAME, tool.getOwnerUUID().toString());
     }
     
     private static NBTTagCompound getNBTTagRO(ItemStack item)
     {
-        net.minecraft.server.v1_7_R1.ItemStack mcItem = CraftItemStack.asNMSCopy(item);
+        net.minecraft.server.v1_7_R3.ItemStack mcItem = CraftItemStack.asNMSCopy(item);
         NBTTagCompound tag = mcItem.getTag();
         if(tag == null)
         {
@@ -86,9 +86,8 @@ public class NBTUtils {
         
         //Using reflection to get the handle
         Field handleField = CraftItemStack.class.getDeclaredField("handle");
-        
         handleField.setAccessible(true);
-        net.minecraft.server.v1_7_R1.ItemStack mcItem = (net.minecraft.server.v1_7_R1.ItemStack) handleField.get(craftItem);
+        net.minecraft.server.v1_7_R3.ItemStack mcItem = (net.minecraft.server.v1_7_R3.ItemStack) handleField.get(craftItem);
         
         NBTTagCompound tag = mcItem.getTag();
         if(tag == null)
