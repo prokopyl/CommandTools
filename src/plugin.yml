@@ -2,7 +2,7 @@
 
 main: me.prokopyl.commandtools.CommandTools
 name: CommandTools
-version: 1.0
+version: 1.0.99
 author: ProkopyL
 
 commands:

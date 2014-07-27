@@ -68,6 +68,7 @@ public class UUIDMigratorWorker implements Runnable
         {
             mergeToolStores();
             saveChanges();
+            saveMigratedUsers();
             cleanup();
             UUIDMigrator.logInfo("Migration completed successfuly !");
             UUIDMigrator.logInfo("You can now play with your CommandTools like before. :-)");
@@ -245,6 +246,12 @@ public class UUIDMigratorWorker implements Runnable
     {
         UUIDMigrator.logInfo("Saving changes ...");
         ToolManager.save();
+    }
+    
+    private void saveMigratedUsers() throws IOException
+    {
+        UUIDMigrator.logInfo("Saving players' UUIDs for later use ...");
+        UsernameDictionary.saveUserList(usersUUIDs);
     }
     
     private void cleanup()

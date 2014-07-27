@@ -194,7 +194,10 @@ public class PlayerToolStore implements ConfigurationSerializable
         try 
         {
             getToolConfig().save(toolsFile);
-        } catch (IOException ex) {
+        } 
+        catch (IOException ex) 
+        {
+            System.err.println("Could not save tools file for player " + playerUUID.toString());
             Logger.getLogger(PlayerToolStore.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

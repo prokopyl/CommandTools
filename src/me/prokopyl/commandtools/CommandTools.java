@@ -1,5 +1,7 @@
 package me.prokopyl.commandtools;
 
+import me.prokopyl.commandtools.migration.NBTUtils;
+import me.prokopyl.commandtools.migration.UUIDMigrator;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -37,6 +39,7 @@ public void onEnable()
 @Override
 public void onDisable()
 {
+    UUIDMigrator.WaitForMigration();
     ToolManager.save();
 }
 
@@ -51,8 +54,16 @@ public boolean onCommand(CommandSender sender, Command cmd, String label, String
 @EventHandler(priority=EventPriority.HIGH)
 public void onPlayerUse(PlayerInteractEvent event)
 {
-    if(event.getAction() != Action.RIGHT_CLICK_AIR) return;
-    if(!CommandTool.isCommandTool(event.getItem())) return;
+    if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
+    {
+        if(event.getPlayer().isSneaking()) return;
+    }
+    else if(event.getAction() != Action.RIGHT_CLICK_AIR) return;
+    
+    if(!CommandTool.isCommandTool(event.getItem()))
+    {
+        if(!NBTUtils.checkOldToolInHandMigration(event.getPlayer())) return;
+    }
     event.setCancelled(true);
     
     if(!event.getPlayer().hasPermission("commandtools.ctools"))
@@ -61,7 +72,7 @@ public void onPlayerUse(PlayerInteractEvent event)
         return;
     }
     
-    ItemStack itemTool = event.getItem();
+    ItemStack itemTool = event.getPlayer().getItemInHand();
     
     CommandTool tool = ToolManager.getTool(itemTool);
     
