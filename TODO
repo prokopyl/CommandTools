@@ -12,7 +12,7 @@
 * NEW: Add a /ctool give command
 * NEW: Add %x %y %z selectors
 * NEW: Add a message if /ctool edit is not used on a ctool.
-* NEW: Add support for migration to UUID-based player identification.
 * NEW: Add support for migration to custom attribute based tools.
+* NEW: Add autosave (and detection of which toolstores have been modified or not).
 
 * OPT: Code refactoring.

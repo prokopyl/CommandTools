@@ -18,6 +18,7 @@
 package me.prokopyl.commandtools;
 
 import java.util.List;
+import me.prokopyl.commandtools.migration.UUIDMigrator;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -49,6 +50,7 @@ static public void Execute(CommandSender sender, String[] args)
             case "get": Get(); break;
             case "rename": Rename(); break;
             case "delete": Delete(); break;
+            case "migrate": Migrate(); break;
             default: sender.sendMessage("§cUnknown action.");
             case "help": Help();
         }
@@ -188,6 +190,18 @@ static private void Delete() throws InvalidCommandSenderException
     
     player.setItemInHand(new ItemStack(Material.AIR));
     player.sendMessage("§7Tool successfully deleted.");
+}
+
+static private void Migrate()
+{
+    if(!sender.isOp())
+    {
+        sender.sendMessage("§cYou must be an operator to start server migration.");
+        return;
+    }
+    
+    sender.sendMessage("Migration started. See console for details.");
+    UUIDMigrator.Migrate();
 }
 
 static private void Help()

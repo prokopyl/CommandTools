@@ -3,13 +3,11 @@ package me.prokopyl.commandtools;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import me.prokopyl.commandtools.attributes.ToolAttribute;
 import me.prokopyl.commandtools.interpreter.Interpreter;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
@@ -23,7 +21,6 @@ public final class CommandTool implements ConfigurationSerializable
     private final UUID ownerUUID;
     private Material itemType;
     private final ArrayList<String> commands = new ArrayList<String>();
-    
     
     public CommandTool(String sId, String sName, Material hItemType, UUID ownerUUID)
     {
@@ -42,9 +39,12 @@ public final class CommandTool implements ConfigurationSerializable
     
     public ItemStack createItem()
     {
-        ItemStack item = new ItemStack(itemType, 1);
-        setCommandToolData(item);
-        return ToolAttribute.toItemStack(this, item);
+        synchronized(this)
+        {
+            ItemStack item = new ItemStack(itemType, 1);
+            setCommandToolData(item);
+            return ToolAttribute.toItemStack(this, item);
+        }
     }
     
     private void setCommandToolData(ItemStack item)
@@ -60,7 +60,10 @@ public final class CommandTool implements ConfigurationSerializable
     
     public void use(Player player)
     {
-        Interpreter.Execute(this, player);
+        synchronized(this)
+        {
+            Interpreter.Execute(this, player);
+        }
     }
     
     public void notify(String message, Player player)
@@ -92,21 +95,27 @@ public final class CommandTool implements ConfigurationSerializable
     
     public void rename(String sId, String sName)
     {
-        id = sId;
-        name = sName;
+        synchronized(this)
+        {   
+            id = sId;
+            name = sName;
+        }
     }
     
     public List<String> getCommands()
     {
         List<String> listCommands = new ArrayList<String>();
-        listCommands.addAll(commands);
+        synchronized(this){listCommands.addAll(commands);}
         return listCommands;
     }
     
     public void setCommands(List<String> newCommands)
     {
-        commands.clear();
-        commands.addAll(newCommands);
+        synchronized(this)
+        {
+            commands.clear();
+            commands.addAll(newCommands);
+        }
     }
     
     /*===== CommandTools Utils =====*/

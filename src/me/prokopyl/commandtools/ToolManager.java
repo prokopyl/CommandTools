@@ -30,10 +30,14 @@ abstract public class ToolManager
 {
     static private final LinkedList<PlayerToolStore> playerTools = new LinkedList<PlayerToolStore>();
     
-    
     static public CommandTool createNewTool(Player player, Material material)
     {
-        CommandTool newTool = new CommandTool(getNextAvailableToolID("Tool", player.getUniqueId()), "Tool", material, player.getUniqueId());
+        return createNewTool("Tool", player.getUniqueId(), material);
+    }
+    
+    static public CommandTool createNewTool(String toolName, UUID playerUUID, Material material)       
+    {
+        CommandTool newTool = new CommandTool(getNextAvailableToolID(toolName, playerUUID), toolName, material, playerUUID);
         addTool(newTool);
         return newTool;
     }
@@ -96,9 +100,12 @@ abstract public class ToolManager
     
     static public void save()
     {
-        for(PlayerToolStore tStore : playerTools)
+        synchronized(playerTools)
         {
-            tStore.saveToolsFile();
+            for(PlayerToolStore tStore : playerTools)
+            {
+                tStore.saveToolsFile();
+            }
         }
     }
     
@@ -110,16 +117,22 @@ abstract public class ToolManager
     static private PlayerToolStore getPlayerToolStore(UUID playerUUID)
     {
         PlayerToolStore store = getExistingPlayerToolStore(playerUUID);
-        if(store == null) store = new PlayerToolStore(playerUUID);
-        playerTools.add(store);
+        if(store == null) 
+        {
+            store = new PlayerToolStore(playerUUID);
+            synchronized(playerTools){playerTools.add(store);}
+        }
         return store;
     }
     
     static private PlayerToolStore getExistingPlayerToolStore(UUID playerUUID)
     {
-        for(PlayerToolStore tStore : playerTools)
+        synchronized(playerTools)
         {
-            if(tStore.getPlayerUUID().equals(playerUUID)) return tStore;
+            for(PlayerToolStore tStore : playerTools)
+            {
+                if(tStore.getPlayerUUID().equals(playerUUID)) return tStore;
+            }
         }
         return null;
     }
