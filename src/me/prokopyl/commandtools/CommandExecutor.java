@@ -50,6 +50,9 @@ static public void Execute(CommandSender sender, String[] args)
             case "get": Get(); break;
             case "rename": Rename(); break;
             case "delete": Delete(); break;
+            case "remove": Remove(); break;
+            case "enable": SetEnabled(true); break;
+            case "disable": SetEnabled(false); break;
             case "migrate": Migrate(); break;
             default: sender.sendMessage("§cUnknown action.");
             case "help": Help();
@@ -89,11 +92,9 @@ static private void Create() throws InvalidCommandSenderException
 static private void Edit() throws InvalidCommandSenderException
 {
     Player player = playerSender();
-    ItemStack itemTool = player.getItemInHand();
-
-    if(!CommandTool.isCommandTool(itemTool)) return;
-
-    CommandTool tool = ToolManager.getTool(itemTool);
+    
+    CommandTool tool = getToolInHand(player);
+    if(tool == null) return;
     player.setItemInHand(ToolEditor.createEditedCommandTool(tool));
 }
 
@@ -190,6 +191,27 @@ static private void Delete() throws InvalidCommandSenderException
     
     player.setItemInHand(new ItemStack(Material.AIR));
     player.sendMessage("§7Tool successfully deleted.");
+}
+
+static private void Remove() throws InvalidCommandSenderException
+{
+    Player player = playerSender();
+    if(!CommandTool.isCommandTool(player.getItemInHand()))
+    {
+        player.sendMessage("§cThis is not a valid command tool.");
+        return;
+    }
+    
+    player.setItemInHand(new ItemStack(Material.AIR));
+    player.sendMessage("§7This tool has been removed from your inventory.");
+    
+}
+
+static private void SetEnabled(boolean enabled) throws InvalidCommandSenderException
+{
+    Player player = playerSender();
+    ToolManager.setEnabled(player.getUniqueId(), enabled);
+    player.sendMessage("§7Your Command Tools are now " + (enabled ? "§2enabled" : "§cdisabled") + "§7.");
 }
 
 static private void Migrate()

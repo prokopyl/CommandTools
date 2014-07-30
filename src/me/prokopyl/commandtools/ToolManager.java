@@ -72,6 +72,18 @@ abstract public class ToolManager
         return store.getEnvironment();
     }
     
+    static public boolean isEnabled(UUID playerUUID)
+    {
+        PlayerToolStore store = getPlayerToolStore(playerUUID);
+        return store.isEnabled();
+    }
+    
+    static public void setEnabled(UUID playerUUID, boolean enabled)
+    {
+        PlayerToolStore store = getPlayerToolStore(playerUUID);
+        store.setEnabled(enabled);
+    }
+    
     static private void addTool(CommandTool tool)
     {
         getPlayerToolStore(tool.getOwnerUUID()).addTool(tool);

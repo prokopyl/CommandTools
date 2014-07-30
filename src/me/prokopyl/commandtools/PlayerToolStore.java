@@ -39,6 +39,8 @@ public class PlayerToolStore implements ConfigurationSerializable
     private final LinkedList<CommandTool> toolList = new LinkedList<CommandTool>();
     private final Environment environment;
     
+    private boolean enabled = true;
+    
     public PlayerToolStore(UUID playerUUID)
     {
         this.playerUUID = playerUUID;
@@ -73,6 +75,16 @@ public class PlayerToolStore implements ConfigurationSerializable
     public Environment getEnvironment()
     {
         return environment;
+    }
+    
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
+    
+    public void setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
     }
     
     public void addTool(CommandTool newTool)
@@ -131,6 +143,7 @@ public class PlayerToolStore implements ConfigurationSerializable
             }
         }
         map.put("toolList", list);
+        map.put("enabled", enabled);
         return map;
     }
     
@@ -138,6 +151,7 @@ public class PlayerToolStore implements ConfigurationSerializable
     {
         if(section == null) return;
         List<Map<String, Object>> list = (List<Map<String, Object>>) section.getList("toolList");
+        enabled = section.getBoolean("enabled", true);
         if(list == null) return;
         synchronized(toolList)
         {

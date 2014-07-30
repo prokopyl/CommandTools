@@ -72,6 +72,12 @@ public void onPlayerUse(PlayerInteractEvent event)
         return;
     }
     
+    if(!ToolManager.isEnabled(event.getPlayer().getUniqueId()))
+    {
+        event.getPlayer().sendMessage("§7Your Command Tools are disabled. Use §r/ctool enable§7 to enable them.");
+        return;
+    }
+    
     ItemStack itemTool = event.getPlayer().getItemInHand();
     
     CommandTool tool = ToolManager.getTool(itemTool);
