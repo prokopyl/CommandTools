@@ -49,6 +49,7 @@ static public void Execute(CommandSender sender, String[] args)
             case "edit": Edit(); break;
             case "list": List(); break;
             case "get": Get(); break;
+            case "info": Info(); break;
             case "rename": Rename(); break;
             case "delete": DeleteConfirm(); break;
             case "delete-noconfirm": DeleteNoConfirm(); break;
@@ -95,10 +96,22 @@ static private void Create() throws InvalidCommandSenderException
 static private void Edit() throws InvalidCommandSenderException
 {
     Player player = playerSender();
+    ItemStack item = player.getItemInHand();
+    CommandTool tool = ToolManager.getTool(item);
+    if(tool == null)
+    {
+        player.sendMessage("§cYou must have a tool in your hand.");
+        return;
+    }
     
-    CommandTool tool = getToolInHand(player);
-    if(tool == null) return;
-    player.setItemInHand(ToolEditor.createEditedCommandTool(tool));
+    if(ToolEditor.isToolEditor(item))
+    {
+        player.setItemInHand(tool.createItem());
+    }
+    else
+    {
+        player.setItemInHand(ToolEditor.createEditedCommandTool(tool));
+    }
 }
 
 static private void List() throws InvalidCommandSenderException
@@ -152,6 +165,20 @@ static private void Get() throws InvalidCommandSenderException
         return;
     }
     player.getInventory().addItem(tool.createItem());
+}
+
+static private void Info() throws InvalidCommandSenderException
+{
+    Player player = playerSender();
+    CommandTool tool = getDesignatedTool(player);
+    if(tool == null) return;
+    
+    player.sendMessage("§3§l ===== Information about " + tool.getName() + " =====");
+    player.sendMessage("§7 Name : §r" + tool.getName());
+    player.sendMessage("§7 Idetifier : §r" + tool.getId());
+    player.sendMessage("§7 Material : §r" + tool.getType().toString());
+    player.sendMessage("§7 Lines : §r" + tool.getCommands().size());
+    
 }
 
 static private void Rename() throws InvalidCommandSenderException

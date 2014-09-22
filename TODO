@@ -4,15 +4,11 @@
 --Next Versions :
 
 * NEW: Use an inventory GUI for /ctool list
-* NEW: Add a confirmation message to /ctool delete
-* NEW: Using /ctool edit to a tool in edition mode reverts it back with no change
 * NEW: Add notions of kits (group of tools that can be given at once)
 * NEW: Add a /ctool give command
 * NEW: Add %x %y %z selectors
-* NEW: Add a message if /ctool edit is not used on a ctool.
 * NEW: Add autosave (and detection of which toolstores have been modified or not).
 * NEW: Add autocompletion.
-* NEW: Add an /ctool info command.
 * NEW: Switch project to Maven.
 
 * OPT: Code refactoring.
