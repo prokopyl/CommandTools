@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import me.prokopyl.commandtools.attributes.ToolAttribute;
 import me.prokopyl.commandtools.interpreter.Interpreter;
@@ -68,7 +69,7 @@ public final class CommandTool implements ConfigurationSerializable
     
     public void notify(String message, Player player)
     {
-        player.sendMessage("§6" + "Tool" + ">§r " + message);
+        player.sendMessage("§6" + name + ">§r " + message);
     }
     
     /*===== Getters & Setters =====*/
@@ -122,6 +123,7 @@ public final class CommandTool implements ConfigurationSerializable
     
     static public boolean isCommandTool(ItemStack item)
     {
+        if(item == null) return false;
         if(item.getType() == Material.AIR) return false;
         ToolAttribute attribute = ToolAttribute.fromItemStack(item);
         if(attribute == null) return false;
@@ -150,7 +152,29 @@ public final class CommandTool implements ConfigurationSerializable
         return map;
     }
     
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other == null) return false;
+        if(!other.getClass().isAssignableFrom(CommandTool.class)) return false;
+        CommandTool otherTool = (CommandTool)other;
+        if(!otherTool.ownerUUID.equals(ownerUUID)) return false;
+        if(!otherTool.id.equals(id)) return false;
+        
+        return true;
+    }
+    
+    @Override
+    public int hashCode() 
+    {
+        int hash = 5;
+        hash = 97 * hash + Objects.hashCode(this.id);
+        hash = 97 * hash + Objects.hashCode(this.ownerUUID);
+        return hash;
+    }
+    
     /*===== Internal object management =====*/
+
     
     
     

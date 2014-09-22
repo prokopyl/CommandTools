@@ -1,7 +1,6 @@
 package me.prokopyl.commandtools.interpreter;
 
 import java.util.UUID;
-import net.minecraft.server.v1_7_R3.EntityPlayer;
 import net.minecraft.server.v1_7_R3.MinecraftServer;
 import net.minecraft.server.v1_7_R3.PlayerInteractManager;
 import net.minecraft.server.v1_7_R3.WorldServer;

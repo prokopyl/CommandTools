@@ -19,6 +19,7 @@ package me.prokopyl.commandtools;
 
 import java.util.List;
 import me.prokopyl.commandtools.migration.UUIDMigrator;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -49,8 +50,10 @@ static public void Execute(CommandSender sender, String[] args)
             case "list": List(); break;
             case "get": Get(); break;
             case "rename": Rename(); break;
-            case "delete": Delete(); break;
+            case "delete": DeleteConfirm(); break;
+            case "delete-noconfirm": DeleteNoConfirm(); break;
             case "remove": Remove(); break;
+            case "clear": Clear(); break;
             case "enable": SetEnabled(true); break;
             case "disable": SetEnabled(false); break;
             case "migrate": Migrate(); break;
@@ -176,21 +179,30 @@ static private void Rename() throws InvalidCommandSenderException
     player.setItemInHand(tool.createItem());
 }
 
-static private void Delete() throws InvalidCommandSenderException
+static private void DeleteConfirm() throws InvalidCommandSenderException
 {
     Player player = playerSender();
-    ItemStack item = player.getItemInHand();
-    if(!CommandTool.isCommandTool(item))
+    CommandTool tool = getDesignatedTool(player);
+    if(tool != null)
     {
-        player.sendMessage("§cThis is not a valid command tool.");
-        return;
+        TellRaw(player, "{text:\"You are going to delete \",extra:[{text:\""+ tool.getId() +"\",color:gold},{text:\". Are you sure ? \",color:white}," +
+            "{text:\"[Confirm]\", color:green, clickEvent:{action:run_command,value:\"/ctool delete-noconfirm "+ tool.getId() +"\"}, " + 
+            "hoverEvent:{action:show_text,value:{text:\"This tool will be deleted \",extra:[{text:\"forever\",color:red,bold:true,italic:true,underlined:true}, {text:\" !\", underlined:true}],underlined:true}}}]}");
     }
-    CommandTool tool = ToolManager.getTool(item);
+}
+
+static private void DeleteNoConfirm() throws InvalidCommandSenderException
+{
+    Player player = playerSender();
+    CommandTool tool = getDesignatedTool(player);
     
-    if(tool != null) ToolManager.deleteTool(tool);
+    if(tool != null) 
+    {
+        Clear(player, tool);
+        ToolManager.deleteTool(tool);
+        player.sendMessage("§7Tool successfully deleted.");
+    }
     
-    player.setItemInHand(new ItemStack(Material.AIR));
-    player.sendMessage("§7Tool successfully deleted.");
 }
 
 static private void Remove() throws InvalidCommandSenderException
@@ -207,6 +219,29 @@ static private void Remove() throws InvalidCommandSenderException
     
 }
 
+static private void Clear() throws InvalidCommandSenderException
+{
+    Player player = playerSender();
+    CommandTool tool = getDesignatedTool(player);
+    if(tool == null) return;
+    Clear(player, tool);
+}
+
+static private void Clear(Player player, CommandTool tool)
+{
+    //Remove all the tool copies from the player's inventory
+    for(int i = 0; i < player.getInventory().getSize(); i++)
+    {
+        ItemStack item = player.getInventory().getItem(i);
+        CommandTool itemTool = ToolManager.getTool(item);
+        if(itemTool == null) continue;
+        if(itemTool.equals(tool))
+        {
+            player.getInventory().setItem(i, new ItemStack(Material.AIR));
+        }
+    }
+}
+
 static private void SetEnabled(boolean enabled) throws InvalidCommandSenderException
 {
     Player player = playerSender();
@@ -218,7 +253,7 @@ static private void Migrate()
 {
     if(!sender.isOp())
     {
-        sender.sendMessage("§cYou must be an operator to start server migration.");
+        sender.sendMessage("§cYou must be an operator to start CommandTool migration.");
         return;
     }
     
@@ -250,13 +285,44 @@ static private CommandTool getToolInHand(Player player)
     CommandTool tool = ToolManager.getTool(itemInHand);
     if(tool == null)
     {
-        player.sendMessage("§4This tool does not exist in the Tool Database. This may indicate a corrupted savefile or tool database .");
-        //player.sendMessage("§4You can safely use §c/ctool delete §4to delete this tool.");
+        player.sendMessage("§cThis tool does not exist in the Tool Database. It may have been deleted.");
         return null;
     }
 
     return tool;
 
+}
+
+static private CommandTool getDesignatedTool(Player player)
+{
+    CommandTool tool = null;
+    
+    if(args.length >= 2)//Designated by name
+    {
+        String toolName = "";
+        for(int i = 1; i < args.length; i++)
+        {
+            toolName += args[i] + " ";
+        }
+        toolName = toolName.trim();
+        
+        tool = ToolManager.getTool(player.getUniqueId(), toolName);
+        if(tool == null)
+        {
+            player.sendMessage("§cThis tool does not exist.");
+        }
+    }
+    else
+    {
+        tool = getToolInHand(player);
+    }
+    
+    return tool;
+}
+
+static public void TellRaw(Player player, String rawMessage)
+{
+    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + rawMessage);
 }
 
 }

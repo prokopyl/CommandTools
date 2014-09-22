@@ -13,5 +13,6 @@
 * NEW: Add autosave (and detection of which toolstores have been modified or not).
 * NEW: Add autocompletion.
 * NEW: Add an /ctool info command.
+* NEW: Switch project to Maven.
 
 * OPT: Code refactoring.

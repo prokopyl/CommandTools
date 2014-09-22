@@ -50,6 +50,7 @@ abstract public class ToolManager
     
     static public CommandTool getTool(ItemStack item)
     {
+        if(item == null) return null;
         if(item.getType() == Material.AIR) return null;
         return getTool(ToolAttribute.fromItemStack(item));
     }
