@@ -9,6 +9,5 @@
 * NEW: Add %x %y %z selectors
 * NEW: Add autosave (and detection of which toolstores have been modified or not).
 * NEW: Add autocompletion.
-* NEW: Switch project to Maven.
 
 * OPT: Code refactoring.
