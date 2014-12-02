@@ -11,6 +11,7 @@ import org.bukkit.craftbukkit.v1_7_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 public class VirtualPlayer extends CraftPlayer
 {
@@ -66,7 +67,22 @@ public class VirtualPlayer extends CraftPlayer
     @Override
     public Location getLocation()
     {
-        return location;
+        return location.clone();
+    }
+    
+    @Override
+    public boolean teleport(Location newLocation)
+    {
+        environment.applyTeleportation(newLocation);
+        location = newLocation.clone();
+        return true;
+    }
+    
+    @Override
+    public boolean teleport(Location newLocation, TeleportCause cause)
+    {
+        teleport(newLocation);
+        return super.teleport(newLocation, cause);
     }
     
     public void executeCommand(String sCommand)
@@ -77,7 +93,6 @@ public class VirtualPlayer extends CraftPlayer
         if(sCommand.charAt(0) == '/') sCommand = sCommand.substring(1);
         Bukkit.getServer().dispatchCommand(this, sCommand);
         isCommandRunning = false;
-
     }
 
 }

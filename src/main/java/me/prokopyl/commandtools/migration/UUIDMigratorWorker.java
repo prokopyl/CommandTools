@@ -170,14 +170,15 @@ public class UUIDMigratorWorker implements Runnable
             return false;
         }
         
-        ArrayList<String> missingUsers = new ArrayList<String>();
+        String missingUsersList = "";
         
         for(String user : filesToMigrate)
         {
-            if(!usersUUIDs.containsKey(user)) missingUsers.add(user);
+            if(!usersUUIDs.containsKey(user)) missingUsersList += user + ",";
         }
+        missingUsersList = missingUsersList.substring(0, missingUsersList.length());
         
-        UUIDMigrator.logInfo("Here are the missing players : " + String.join(",", missingUsers));
+        UUIDMigrator.logInfo("Here are the missing players : " + missingUsersList);
         return true;
     }
     

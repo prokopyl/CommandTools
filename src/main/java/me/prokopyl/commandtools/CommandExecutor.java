@@ -70,7 +70,7 @@ static public void Execute(CommandSender sender, String[] args)
 
 static private void Create() throws InvalidCommandSenderException
 {
-    Player player = (Player) sender;
+    Player player = playerSender();
     Inventory playerInventory = player.getInventory();
     
     ItemStack itemInHand = player.getItemInHand();
@@ -203,6 +203,7 @@ static private void Rename() throws InvalidCommandSenderException
     
     tool.rename(ToolManager.getNextAvailableToolID(sNewName, player.getUniqueId()), sNewName);
     
+
     player.setItemInHand(tool.createItem());
 }
 
@@ -322,7 +323,7 @@ static private CommandTool getToolInHand(Player player)
 
 static private CommandTool getDesignatedTool(Player player)
 {
-    CommandTool tool = null;
+    CommandTool tool;
     
     if(args.length >= 2)//Designated by name
     {

@@ -80,6 +80,13 @@ public class Environment
         currentPlayer.sendMessage("§6" + currentTool.getName() + ">§r " + message);
     }
     
+    public void applyTeleportation(Location newLocation)
+    {
+        if(currentPlayer == null) return;
+        Location diffLocation = newLocation.clone().subtract(virtualPlayer.getLocation().clone());
+        currentPlayer.teleport(currentPlayer.getLocation().add(diffLocation));
+    }
+    
     private VirtualPlayer getVirtualPlayer() 
     { 
         if(virtualPlayer == null) virtualPlayer = VirtualPlayer.createVirtualPlayer(playerUUID, this);

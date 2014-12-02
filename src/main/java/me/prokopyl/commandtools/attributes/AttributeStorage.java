@@ -9,8 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import me.prokopyl.commandtools.attributes.Attributes.Attribute;
 import me.prokopyl.commandtools.attributes.Attributes.AttributeType;
 import me.prokopyl.commandtools.attributes.Attributes.Operation;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
 /**
  * Store meta-data in an ItemStack as attributes.
@@ -20,9 +18,12 @@ public class AttributeStorage {
     private ItemStack target;
     private final UUID uniqueKey;
     
-    private AttributeStorage(ItemStack target, UUID uniqueKey) {
-        this.target = Preconditions.checkNotNull(target, "target cannot be NULL");
-        this.uniqueKey = Preconditions.checkNotNull(uniqueKey, "uniqueKey cannot be NULL");
+    private AttributeStorage(ItemStack target, UUID uniqueKey) 
+    {
+        if(target == null) throw new IllegalArgumentException("target cannot be NULL");
+        if(uniqueKey == null) throw new IllegalArgumentException("uniqueKey cannot be NULL");
+        this.target = target;
+        this.uniqueKey = uniqueKey;
     }
     
     /**
@@ -118,7 +119,7 @@ public class AttributeStorage {
      */
     private Attribute getAttribute(Attributes attributes, UUID id) {
         for (Attribute attribute : attributes.values()) {
-            if (Objects.equal(attribute.getUUID(), id)) {
+            if (attribute.getUUID().equals(id)) {
                 return attribute;
             }
         }

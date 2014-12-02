@@ -8,3 +8,5 @@
 /build/*
 /build.xml
 /target/
+/.idea
+*.iml

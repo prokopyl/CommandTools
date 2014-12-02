@@ -35,9 +35,9 @@ abstract public class UUIDMigrator
     
     static public void WaitForMigration()
     {
-        logInfo("Waiting for migration to finish ...");
         if(migratorThread != null && migratorThread.isAlive())
         {
+            logInfo("Waiting for migration to finish ...");
             try
             {
                 migratorThread.join();
