@@ -29,13 +29,12 @@ public final class CommandTool implements ConfigurationSerializable
         itemType = hItemType;
         id = sId;
         name = sName;
-        
     }
     
     public CommandTool(String sId, CommandTool otherTool, UUID ownerUUID)
     {
         this(sId, otherTool.getName(), otherTool.getType(), ownerUUID);
-        setCommands(otherTool.getCommands());
+        loadCommands(otherTool.getCommands());
     }
     
     public ItemStack createItem()
@@ -109,14 +108,11 @@ public final class CommandTool implements ConfigurationSerializable
         synchronized(this){listCommands.addAll(commands);}
         return listCommands;
     }
-    
+
     public void setCommands(List<String> newCommands)
     {
-        synchronized(this)
-        {
-            commands.clear();
-            commands.addAll(newCommands);
-        }
+        loadCommands(newCommands);
+        ToolManager.setModified(ownerUUID, true);
     }
     
     /*===== CommandTools Utils =====*/
@@ -136,9 +132,7 @@ public final class CommandTool implements ConfigurationSerializable
     {
         //this(sName, hItem, hOwner);
         this((String) map.get("id"),(String) map.get("name"), Material.getMaterial((String) map.get("material")), ownerUUID);
-        
-        setCommands((List<String>) map.get("commands"));
-        
+        loadCommands((List<String>) map.get("commands"));
     }
     
     @Override
@@ -175,7 +169,10 @@ public final class CommandTool implements ConfigurationSerializable
     
     /*===== Internal object management =====*/
 
-    
-    
+    private synchronized void loadCommands(List<String> newCommands)
+    {
+        commands.clear();
+        commands.addAll(newCommands);
+    }
     
 }

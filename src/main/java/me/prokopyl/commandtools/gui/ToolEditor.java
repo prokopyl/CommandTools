@@ -1,9 +1,11 @@
-package me.prokopyl.commandtools;
+package me.prokopyl.commandtools.gui;
 
 import me.prokopyl.commandtools.nbt.GlowingEnchantmentWrapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import me.prokopyl.commandtools.CommandTool;
+import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.attributes.ToolAttribute;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -40,7 +42,8 @@ public void onItemDrop(PlayerDropItemEvent event)
 {
     if(isToolEditor(event.getItemDrop().getItemStack()))
     {
-        event.getPlayer().sendMessage("§cYou can't drop a Command Tool in edition mode !");
+        CommandTool tool = ToolManager.getTool(event.getItemDrop().getItemStack());
+        event.getItemDrop().setItemStack(tool.createItem());
         event.setCancelled(true);
     }
 }

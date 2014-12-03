@@ -6,7 +6,6 @@
 * NEW: Add notions of kits (group of tools that can be given at once)
 * NEW: Add a /ctool give command
 * NEW: Add %x %y %z selectors
-* NEW: Add autosave (and detection of which toolstores have been modified or not).
 * NEW: Add autocompletion.
 
 * OPT: Code refactoring.

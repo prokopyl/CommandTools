@@ -17,6 +17,7 @@
 
 package me.prokopyl.commandtools;
 
+import me.prokopyl.commandtools.gui.ToolEditor;
 import java.util.List;
 import me.prokopyl.commandtools.migration.UUIDMigrator;
 import org.bukkit.Bukkit;

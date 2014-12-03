@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.UUID;
 import me.prokopyl.commandtools.attributes.ToolAttribute;
 import me.prokopyl.commandtools.interpreter.Environment;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -29,6 +30,23 @@ import org.bukkit.inventory.ItemStack;
 abstract public class ToolManager 
 {
     static private final LinkedList<PlayerToolStore> playerTools = new LinkedList<PlayerToolStore>();
+    static private int autosaveTaskHandle = -1;
+    
+    static public void init()
+    {
+        autosaveTaskHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(
+                CommandTools.getPlugin(), new AutosaveRunnable(), 1200, 1200);
+        if(autosaveTaskHandle < 0)
+        {
+            System.err.println("WARNING: Could not start the tool auto-updating task.");
+        }
+    }
+    
+    static public void exit()
+    {
+        if(autosaveTaskHandle >= 0) Bukkit.getScheduler().cancelTask(autosaveTaskHandle);
+        save();
+    }
     
     static public CommandTool createNewTool(Player player, Material material)
     {
@@ -83,6 +101,18 @@ abstract public class ToolManager
     {
         PlayerToolStore store = getPlayerToolStore(playerUUID);
         store.setEnabled(enabled);
+    }
+    
+    static public boolean isModified(UUID playerUUID)
+    {
+        PlayerToolStore store = getPlayerToolStore(playerUUID);
+        return store.isModified();
+    }
+    
+    static public void setModified(UUID playerUUID, boolean modified)
+    {
+        PlayerToolStore store = getPlayerToolStore(playerUUID);
+        store.setModified(modified);
     }
     
     static private void addTool(CommandTool tool)
@@ -150,5 +180,19 @@ abstract public class ToolManager
         return null;
     }
     
-    
+    static private class AutosaveRunnable implements Runnable
+    {
+        @Override
+        public void run() 
+        {
+            synchronized(playerTools)
+            {
+                for(PlayerToolStore toolStore : playerTools)
+                {
+                    if(toolStore.isModified()) toolStore.saveToolsFile();
+                }
+            }
+        }
+        
+    }
 }

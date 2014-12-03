@@ -40,6 +40,7 @@ public class PlayerToolStore implements ConfigurationSerializable
     private final Environment environment;
     
     private boolean enabled = true;
+    private boolean modified = false;
     
     public PlayerToolStore(UUID playerUUID)
     {
@@ -87,9 +88,20 @@ public class PlayerToolStore implements ConfigurationSerializable
         this.enabled = enabled;
     }
     
+    public boolean isModified()
+    {
+        return modified;
+    }
+    
+    public void setModified(boolean modified)
+    {
+        this.modified = modified;
+    }
+    
     public void addTool(CommandTool newTool)
     {
         synchronized(toolList) {toolList.add(newTool);}
+        this.modified = true;
     }
     
     public CommandTool getClonedTool(String toolName, UUID destinationPlayerUUID, String newToolName)
@@ -102,6 +114,7 @@ public class PlayerToolStore implements ConfigurationSerializable
     public void deleteTool(CommandTool tool)
     {
         synchronized(toolList){ toolList.remove(tool);}
+        this.modified = true;
     }
     
     public String getNextAvailableToolID(String toolID)
@@ -213,7 +226,10 @@ public class PlayerToolStore implements ConfigurationSerializable
         {
             System.err.println("Could not save tools file for player " + playerUUID.toString());
             Logger.getLogger(PlayerToolStore.class.getName()).log(Level.SEVERE, null, ex);
+            return;
         }
+        this.modified = false;
+        System.out.println("Saving tools file for player " + playerUUID.toString());
     }
 
     
