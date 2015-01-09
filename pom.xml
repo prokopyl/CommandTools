@@ -29,7 +29,7 @@
             <artifactId>minecraft</artifactId>
             <version>1.7_R3</version>
             <scope>system</scope>
-            <systemPath>/home/adrien/Programmation/Java/craftbukkit-1.7.9-R0.2.jar</systemPath>
+            <systemPath>${basedir}/lib/craftbukkit-1.7.9-R0.2.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
