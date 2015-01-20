@@ -89,7 +89,14 @@ private static List<String> pagesToCommands(List<String> pages)
     
     for(String sPage : pages)
     {
-        commands.addAll(Arrays.asList(sPage.split("\n")));
+        for(String sCommand : sPage.split("\n"))
+        {
+            sCommand = sCommand.trim();
+            if(sCommand.startsWith("§0")) sCommand = sCommand.substring(2);
+            if(sCommand.endsWith("§0")) sCommand = sCommand.substring(0, sCommand.length() - 2);
+            sCommand = sCommand.trim();
+            commands.add(sCommand);
+        }
     }
     
     return commands;

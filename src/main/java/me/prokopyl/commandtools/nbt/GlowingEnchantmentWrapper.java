@@ -20,9 +20,10 @@ import org.bukkit.inventory.ItemStack;
  
 public class GlowingEnchantmentWrapper extends EnchantmentWrapper {
     
-    private static GlowingEnchantmentWrapper GlowEnchantment;
+    static private final int ENCHANTMENT_ID = 4269;
+    private static Enchantment GlowEnchantment;
     
-    static public GlowingEnchantmentWrapper getGlowingEnchantment()
+    static public Enchantment getGlowingEnchantment()
     {
         if(GlowEnchantment == null) Enable();
         return GlowEnchantment;
@@ -32,12 +33,15 @@ public class GlowingEnchantmentWrapper extends EnchantmentWrapper {
     {
         try
         {
-            Field f = Enchantment.class.getDeclaredField("acceptingNew");
-            f.setAccessible(true);
-            f.set(null, true);
-
-            GlowEnchantment = new GlowingEnchantmentWrapper(69);
-            EnchantmentWrapper.registerEnchantment(GlowEnchantment);
+            GlowEnchantment = Enchantment.getById(ENCHANTMENT_ID);
+            if(GlowEnchantment == null) 
+            {            
+                Field f = Enchantment.class.getDeclaredField("acceptingNew");
+                f.setAccessible(true);
+                f.set(null, true);
+                GlowEnchantment = new GlowingEnchantmentWrapper(ENCHANTMENT_ID);
+                EnchantmentWrapper.registerEnchantment(GlowEnchantment);
+            }
 
         }catch(Exception e){
             Logger.getLogger(GlowingEnchantmentWrapper.class.getName()).log(Level.SEVERE, null, e);

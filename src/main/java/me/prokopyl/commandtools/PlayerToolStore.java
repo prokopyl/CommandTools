@@ -25,8 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import me.prokopyl.commandtools.interpreter.Environment;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -224,12 +222,11 @@ public class PlayerToolStore implements ConfigurationSerializable
         } 
         catch (IOException ex) 
         {
-            System.err.println("Could not save tools file for player " + playerUUID.toString());
-            Logger.getLogger(PlayerToolStore.class.getName()).log(Level.SEVERE, null, ex);
+            PluginLogger.LogError("Could not save tools file for player " + playerUUID.toString(), ex);
             return;
         }
         this.modified = false;
-        System.out.println("Saving tools file for player " + playerUUID.toString());
+        PluginLogger.LogInfo("Saving tools file for player " + playerUUID.toString());
     }
 
     

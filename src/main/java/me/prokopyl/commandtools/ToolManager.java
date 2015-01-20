@@ -38,7 +38,7 @@ abstract public class ToolManager
                 CommandTools.getPlugin(), new AutosaveRunnable(), 1200, 1200);
         if(autosaveTaskHandle < 0)
         {
-            System.err.println("WARNING: Could not start the tool auto-updating task.");
+            PluginLogger.LogWarning("Could not start the tool auto-updating task.");
         }
     }
     

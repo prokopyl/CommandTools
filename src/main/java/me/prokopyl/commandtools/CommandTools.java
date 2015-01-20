@@ -1,6 +1,7 @@
 package me.prokopyl.commandtools;
 
 import me.prokopyl.commandtools.gui.ToolEditor;
+import me.prokopyl.commandtools.gui.ToolExplorer;
 import me.prokopyl.commandtools.migration.NBTUtils;
 import me.prokopyl.commandtools.migration.UUIDMigrator;
 import org.bukkit.Bukkit;
@@ -35,6 +36,7 @@ public void onEnable()
 {
     Bukkit.getPluginManager().registerEvents(this, this);
     Bukkit.getPluginManager().registerEvents(new ToolEditor(), this);
+    Bukkit.getPluginManager().registerEvents(new ToolExplorer(), this);
     ToolManager.init();
 }
 

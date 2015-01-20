@@ -20,8 +20,12 @@ package me.prokopyl.commandtools.interpreter;
 import java.util.HashSet;
 import java.util.UUID;
 import me.prokopyl.commandtools.CommandTool;
+import me.prokopyl.commandtools.PluginLogger;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class Environment 
 {
@@ -34,6 +38,7 @@ public class Environment
     private CommandTool currentTool;
     private Player currentPlayer;
     private Location currentLocation;
+    private Location oldLocation;
     private int commandsExecuted;
     
     public Environment(UUID playerUUID)
@@ -53,14 +58,18 @@ public class Environment
         currentTool = tool;
         currentPlayer = player;
         currentLocation = player.getTargetBlock(TRANSPARENT_BLOCKS, 100).getLocation();
+        oldLocation = player.getLocation().clone();
         commandsExecuted = 0;
         
-        getVirtualPlayer().moveTo(currentLocation);
+        VirtualPlayer.setLocation(currentPlayer, currentLocation);
     }
     
-    public void executeCommand(String command)
+    public void executeCommand(String sCommand)
     {
-        virtualPlayer.executeCommand(command);
+        PlayerCommandPreprocessEvent pcpe = new PlayerCommandPreprocessEvent(currentPlayer, sCommand);
+        Bukkit.getPluginManager().callEvent(pcpe);
+        if(sCommand.charAt(0) == '/') sCommand = sCommand.substring(1);
+        Bukkit.getServer().dispatchCommand(currentPlayer, sCommand);
         commandsExecuted++;
     }
     
@@ -68,6 +77,7 @@ public class Environment
     {
         if(commandsExecuted == 0) notify("§7This tool has no command assigned. Use §f/ctool edit§7 to add some.");
         
+        VirtualPlayer.setLocation(currentPlayer, oldLocation);
         currentTool = null;
         currentPlayer = null;
         currentLocation = null;

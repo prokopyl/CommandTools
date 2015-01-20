@@ -52,7 +52,7 @@ public final class CommandTool implements ConfigurationSerializable
         ItemMeta metaData = item.getItemMeta();
         metaData.setDisplayName(name);
         ArrayList<String> lore = new ArrayList<String>();
-        lore.add("§6§l§nCommand Tool");
+        lore.add("§6§l§nCommand Tool§r   ");
         lore.add("§7" + commands.size() + " lines");
         metaData.setLore(lore);
         item.setItemMeta(metaData);

@@ -1,76 +1,90 @@
 package me.prokopyl.commandtools.interpreter;
 
+import java.lang.reflect.Constructor;
 import java.util.UUID;
-import net.minecraft.server.v1_7_R3.MinecraftServer;
-import net.minecraft.server.v1_7_R3.PlayerInteractManager;
-import net.minecraft.server.v1_7_R3.WorldServer;
-import net.minecraft.util.com.mojang.authlib.GameProfile;
+import me.prokopyl.commandtools.PluginLogger;
+import me.prokopyl.commandtools.nbt.reflection.ProxyClass;
+import me.prokopyl.commandtools.nbt.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_7_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-public class VirtualPlayer extends CraftPlayer
+public class VirtualPlayer extends ProxyClass
 {
-    private final Environment environment;
+    private Environment environment;
     private Location location;
-    private boolean isCommandRunning;
+    private boolean isCommandRunning = false;
 
     public static VirtualPlayer createVirtualPlayer(UUID uuid, Environment environment)
     {
-        VirtualPlayer virtualplayer;
-        
-        Location location = Bukkit.getPlayer(uuid).getLocation();
-        CraftServer cserver = (CraftServer) Bukkit.getServer();
-        MinecraftServer mcserver = cserver.getServer();
-        WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
-        WorldServer worldserver = mcserver.getWorldServer(0);
-        PlayerInteractManager pim = new PlayerInteractManager(worldserver);
-        VirtualEntityPlayer entity = new VirtualEntityPlayer(mcserver, world, new GameProfile(uuid, Bukkit.getPlayer(uuid).getName()), pim);
-        virtualplayer = new VirtualPlayer(cserver, entity, environment);
-        virtualplayer.moveTo(location);
-
-        return virtualplayer;
+        try
+        {
+            VirtualPlayer instance = (VirtualPlayer) createInstance(VirtualPlayer.class, Player.class);
+            instance.init(uuid, environment);
+            return instance;
+        }
+        catch(Exception ex)
+        {
+            PluginLogger.LogError("Could not create virtual player", ex);
+            return null;
+        }
     }
-
-    public VirtualPlayer(CraftServer cserver, VirtualEntityPlayer entity, Environment environment)
+    
+    public static void setLocation(Player player, Location hloc)
     {
-            super(cserver, entity);
-            entity.setVirtualPlayer(this);
-            this.isCommandRunning = false;
-            this.environment = environment;
+        try{
+        Object entity = ReflectionUtils.call(player, "getHandle");
+        World world = hloc.getWorld();
+        entity.getClass().getMethod("setLocation", 
+                double.class, double.class, double.class, float.class, float.class)
+                .invoke(entity, hloc.getX(), hloc.getY(), hloc.getZ(), hloc.getYaw(), hloc.getPitch());
+        }catch(Exception ex)
+        {
+            PluginLogger.LogError("Could not set player virtual location", ex);
+        }
     }
 
-    @Override
+    public VirtualPlayer()
+    {
+        
+    }
+    
+    protected void init(UUID uuid, Environment environment)
+    {
+        this.environment = environment;
+        setFallbackInstance(createCraftPlayer(uuid));
+    }
+
     public void updateInventory()
     {
             // / Do nothing
     }
 
-    @Override
     public void sendMessage(String s){
             if(isCommandRunning) environment.notify(s);
     }
 
     public void moveTo(Location hloc)
     {
-            entity.world = ((CraftWorld) hloc.getWorld()).getHandle();
-            entity.locX = hloc.getX();
-            entity.locY = hloc.getY();
-            entity.locZ = hloc.getZ();
-            location = hloc.clone();
+        try{
+        Object entity = getField("entity");
+        World world = hloc.getWorld();
+        ReflectionUtils.setField(entity, "world", ReflectionUtils.call(world, "getHandle"));
+        ReflectionUtils.setField(entity, "locX", hloc.getX());
+        ReflectionUtils.setField(entity, "locY", hloc.getY());
+        ReflectionUtils.setField(entity, "locZ", hloc.getZ());
+        location = hloc.clone();
+        }catch(Exception ex){}
     }
 
-    @Override
     public Location getLocation()
     {
         return location.clone();
     }
     
-    @Override
     public boolean teleport(Location newLocation)
     {
         environment.applyTeleportation(newLocation);
@@ -78,21 +92,59 @@ public class VirtualPlayer extends CraftPlayer
         return true;
     }
     
-    @Override
     public boolean teleport(Location newLocation, TeleportCause cause)
     {
         teleport(newLocation);
-        return super.teleport(newLocation, cause);
+        return ((Player)getFallbackInstance()).teleport(newLocation, cause);
     }
     
     public void executeCommand(String sCommand)
     {
         isCommandRunning = true;
-        PlayerCommandPreprocessEvent pcpe = new PlayerCommandPreprocessEvent(this, sCommand);
+        PlayerCommandPreprocessEvent pcpe = new PlayerCommandPreprocessEvent((Player)this, sCommand);
         Bukkit.getPluginManager().callEvent(pcpe);
         if(sCommand.charAt(0) == '/') sCommand = sCommand.substring(1);
-        Bukkit.getServer().dispatchCommand(this, sCommand);
+        Bukkit.getServer().dispatchCommand((Player)this, sCommand);
         isCommandRunning = false;
     }
-
+    
+    private Player createCraftPlayer(UUID uuid)
+    {
+        
+        try
+        {
+            Location hlocation = Bukkit.getPlayer(uuid).getLocation();
+            Object craftServer = Bukkit.getServer();
+            Object minecraftServer = ReflectionUtils.call(craftServer, "getServer");
+            Object minecraftWorld = ReflectionUtils.call(hlocation.getWorld(), "getHandle");
+            
+            Object minecraftWorldServer = minecraftServer.getClass()
+                    .getMethod("getWorldServer", int.class)
+                    .invoke(minecraftServer, 0);
+            
+            Object playerInteractManager = ReflectionUtils.getMinecraftClassByName("PlayerInteractManager").
+                    getConstructor(ReflectionUtils.getMinecraftClassByName("World"))
+                    .newInstance(minecraftWorldServer);
+            
+            Object gameProfile = ReflectionUtils.instanciate(
+                    Class.forName("com.mojang.authlib.GameProfile"),
+                    uuid, Bukkit.getPlayer(uuid).getName());
+            
+            Object craftEntityPlayer = ReflectionUtils.getMinecraftClassByName("EntityPlayer")
+                    .getConstructor(ReflectionUtils.getMinecraftClassByName("MinecraftServer"), 
+                            ReflectionUtils.getMinecraftClassByName("WorldServer"),
+                            gameProfile.getClass(), playerInteractManager.getClass())
+                    .newInstance(minecraftServer, minecraftWorld, gameProfile, playerInteractManager);
+            Object craftPlayer = ReflectionUtils.instanciate(
+                    ReflectionUtils.getBukkitClassByName("entity.CraftPlayer"), 
+                    craftServer, craftEntityPlayer);
+            return (Player) craftPlayer;
+        }
+        catch(Exception ex)
+        {
+            PluginLogger.LogError("Failed to create craft player.", ex);
+            return null;
+        }
+    }
+    
 }

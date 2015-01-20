@@ -1,11 +1,12 @@
 package me.prokopyl.commandtools.migration;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.CommandTool;
-import net.minecraft.server.v1_7_R3.NBTTagCompound;
+import me.prokopyl.commandtools.PluginLogger;
+import me.prokopyl.commandtools.nbt.reflection.ReflectionUtils;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,7 +27,7 @@ abstract public class NBTUtils
         
         if(tool == null)
         {
-            player.sendMessage("§4This tool does not exist in the Tool Database. This may indicate a corrupted savefile or tool database .");
+            player.sendMessage("§4This tool does not exist in the Tool Database. This tool may have been deleted.");
             player.setItemInHand(new ItemStack(Material.AIR));
             return true;
         }
@@ -37,29 +38,39 @@ abstract public class NBTUtils
     
     private static String getCommandToolID(ItemStack item)
     {
-        return getNBTTagRO(item).getString(NBT_ID_TAG_NAME);
+        return (String) getNBTTagRO(item ,"String", NBT_ID_TAG_NAME);
     }
     
     private static String getCommandToolOwner(ItemStack item)
     {
-        return getNBTTagRO(item).getString(NBT_OWNER_TAG_NAME);
+        return (String) getNBTTagRO(item, "String", NBT_OWNER_TAG_NAME);
     }
     
     private static boolean getToolEditorMode(ItemStack item)
     {
-        return getNBTTagRO(item).getBoolean(NBT_EDITION_TAG_NAME);
+        return (Boolean) getNBTTagRO(item, "Boolean", NBT_EDITION_TAG_NAME);
     }
     
-    private static NBTTagCompound getNBTTagRO(ItemStack item)
+    private static Object getNBTTagRO(ItemStack item, String tagType, String tagName)
     {
-        net.minecraft.server.v1_7_R3.ItemStack mcItem = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound tag = mcItem.getTag();
-        if(tag == null)
+        try
         {
-            tag = new NBTTagCompound();
-            mcItem.setTag(tag);
+            Class craftItemStack = ReflectionUtils.getBukkitClassByName("inventory.CraftItemStack");
+            Object mcItem = craftItemStack.getMethod("asNMSCopy", ItemStack.class)
+                    .invoke(null, item);
+            Object nbtTagCompound = ReflectionUtils.call(mcItem, "getTag");
+            if(nbtTagCompound == null)
+            {
+                nbtTagCompound = ReflectionUtils.instanciate(
+                        ReflectionUtils.getMinecraftClassByName("NBTTagCompound"));
+            }
+            return ReflectionUtils.call(nbtTagCompound, "get"+tagType, tagName);
         }
-        return tag;
+        catch(Exception ex)
+        {
+            PluginLogger.LogError("Failed to retreive NBT tag from item", ex);
+            return null;
+        }
     }
     
     static private boolean isOldCommandTool(ItemStack item)

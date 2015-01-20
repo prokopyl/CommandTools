@@ -19,6 +19,7 @@ package me.prokopyl.commandtools;
 
 import me.prokopyl.commandtools.gui.ToolEditor;
 import java.util.List;
+import me.prokopyl.commandtools.gui.ToolExplorer;
 import me.prokopyl.commandtools.migration.UUIDMigrator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -51,6 +52,7 @@ static public void Execute(CommandSender sender, String[] args)
             case "list": List(); break;
             case "get": Get(); break;
             case "info": Info(); break;
+            case "explore": Explore(); break;
             case "rename": Rename(); break;
             case "delete": DeleteConfirm(); break;
             case "delete-noconfirm": DeleteNoConfirm(); break;
@@ -180,6 +182,12 @@ static private void Info() throws InvalidCommandSenderException
     player.sendMessage("§7 Material : §r" + tool.getType().toString());
     player.sendMessage("§7 Lines : §r" + tool.getCommands().size());
     
+}
+
+static private void Explore() throws InvalidCommandSenderException
+{
+    Player player = playerSender();
+    ToolExplorer.openExplorer(player);
 }
 
 static private void Rename() throws InvalidCommandSenderException

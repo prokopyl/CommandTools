@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import me.prokopyl.commandtools.PlayerToolStore;
-import net.minecraft.util.com.google.common.io.Files;
+import com.google.common.io.Files;
 
 abstract public class UsernameDictionary 
 {
