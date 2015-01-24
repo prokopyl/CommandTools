@@ -5,7 +5,7 @@ import java.util.UUID;
 import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.PluginLogger;
-import me.prokopyl.commandtools.nbt.reflection.ReflectionUtils;
+import me.prokopyl.commandtools.nbt.ReflectionUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

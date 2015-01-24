@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package me.prokopyl.commandtools.nbt.reflection;
+package me.prokopyl.commandtools.nbt;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -37,31 +37,6 @@ abstract public class ReflectionUtils
     static public Class getMinecraftClassByName(String name) throws ClassNotFoundException
     {
         return Class.forName(getMinecraftPackageName() + "." + name);
-    }
-    
-    static public Method getCompatibleMethod(Class hClass, Method hMethod)
-    {
-        for(Method tMethod : hClass.getMethods())
-        {
-            if(!tMethod.getName().equals(hMethod.getName())) continue;
-            if(areMethodsCompatible(hMethod, tMethod)) return tMethod;
-        }
-        return null;
-    }
-    
-    static public boolean areMethodsCompatible(Method source, Method destination)
-    {
-        Class[] sourceParams = source.getParameterTypes();
-        Class[] destinationParams = destination.getParameterTypes();
-        
-        if(sourceParams.length != destinationParams.length) return false;
-        
-        for(int i = 0; i < sourceParams.length; i++)
-        {
-            if(!(destinationParams[i].isAssignableFrom(sourceParams[i]))) return false;
-        }
-        
-        return true;
     }
     
     static public Object getField(Object instance, String name) 

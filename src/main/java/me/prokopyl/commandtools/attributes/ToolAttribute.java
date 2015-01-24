@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 adrien
+ * Copyright (C) 2014 ProkopyL
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class ToolAttribute 
 {
-    static private UUID pluginStorageID = UUID.fromString("8675a26f-5d66-49ca-9eef-094bbea764eb");
-    private UUID ownerUUID;
-    private String toolID;
-    private boolean isToolEditor;
+    static private final UUID PLUGIN_STORAGE_ID = UUID.fromString("8675a26f-5d66-49ca-9eef-094bbea764eb");
     
     static public ToolAttribute fromItemStack(ItemStack itemStack)
     {
-        AttributeStorage storage = AttributeStorage.newTarget(itemStack, pluginStorageID);
+        AttributeStorage storage = AttributeStorage.newTarget(itemStack, PLUGIN_STORAGE_ID);
         return fromString(storage.getData(""));
     }
     
@@ -67,6 +64,12 @@ public class ToolAttribute
     {
         return toItemStack(tool, itemStack, false);
     }
+    
+    
+    
+    private UUID ownerUUID;
+    private String toolID;
+    private boolean isToolEditor;
     
     public ToolAttribute(UUID ownerUUID, String toolID, boolean isToolEditor)
     {
@@ -118,7 +121,7 @@ public class ToolAttribute
     
     public ItemStack toItemStack(ItemStack itemStack)
     {
-        AttributeStorage storage = AttributeStorage.newTarget(itemStack, pluginStorageID);
+        AttributeStorage storage = AttributeStorage.newTarget(itemStack, PLUGIN_STORAGE_ID);
         storage.setData(this.toString());
         return storage.getTarget();
     }

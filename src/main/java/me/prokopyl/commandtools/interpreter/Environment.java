@@ -20,19 +20,16 @@ package me.prokopyl.commandtools.interpreter;
 import java.util.HashSet;
 import java.util.UUID;
 import me.prokopyl.commandtools.CommandTool;
-import me.prokopyl.commandtools.PluginLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class Environment 
 {
     
     private static final HashSet<Byte> TRANSPARENT_BLOCKS = new HashSet<Byte>();
     private final UUID playerUUID;
-    private VirtualPlayer virtualPlayer;
     
     //Execution variables
     private CommandTool currentTool;
@@ -61,7 +58,6 @@ public class Environment
         oldLocation = player.getLocation().clone();
         commandsExecuted = 0;
         
-        VirtualPlayer.setLocation(currentPlayer, currentLocation);
     }
     
     public void executeCommand(String sCommand)
@@ -77,7 +73,6 @@ public class Environment
     {
         if(commandsExecuted == 0) notify("§7This tool has no command assigned. Use §f/ctool edit§7 to add some.");
         
-        VirtualPlayer.setLocation(currentPlayer, oldLocation);
         currentTool = null;
         currentPlayer = null;
         currentLocation = null;
@@ -93,13 +88,7 @@ public class Environment
     public void applyTeleportation(Location newLocation)
     {
         if(currentPlayer == null) return;
-        Location diffLocation = newLocation.clone().subtract(virtualPlayer.getLocation().clone());
+        Location diffLocation = newLocation.clone().subtract(currentPlayer.getLocation().clone());
         currentPlayer.teleport(currentPlayer.getLocation().add(diffLocation));
-    }
-    
-    private VirtualPlayer getVirtualPlayer() 
-    { 
-        if(virtualPlayer == null) virtualPlayer = VirtualPlayer.createVirtualPlayer(playerUUID, this);
-        return virtualPlayer; 
     }
 }
