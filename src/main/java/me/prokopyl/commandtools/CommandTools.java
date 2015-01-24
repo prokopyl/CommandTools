@@ -1,12 +1,15 @@
 package me.prokopyl.commandtools;
 
+import me.prokopyl.commandtools.commands.Commands;
 import me.prokopyl.commandtools.gui.ToolEditor;
 import me.prokopyl.commandtools.gui.ToolExplorer;
 import me.prokopyl.commandtools.migration.NBTUtils;
 import me.prokopyl.commandtools.migration.UUIDMigrator;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -50,9 +53,7 @@ public void onDisable()
 @Override
 public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 {
-    if(!cmd.getName().equalsIgnoreCase("ctool")) return false;
-    CommandExecutor.Execute(sender, args);
-    return true;
+    return Commands.execute(sender, cmd.getName(), args);
 }
 
 @EventHandler(priority=EventPriority.HIGH)
@@ -107,6 +108,21 @@ public void onPlayerUse(PlayerInteractEvent event)
 public void onWorldSave(WorldSaveEvent event)
 {
     ToolManager.save();
+}
+
+static public void clear(Player player, CommandTool tool)
+{
+    //Remove all the tool copies from the player's inventory
+    for(int i = 0; i < player.getInventory().getSize(); i++)
+    {
+        ItemStack item = player.getInventory().getItem(i);
+        CommandTool itemTool = ToolManager.getTool(item);
+        if(itemTool == null) continue;
+        if(itemTool.equals(tool))
+        {
+            player.getInventory().setItem(i, new ItemStack(Material.AIR));
+        }
+    }
 }
 
 }
