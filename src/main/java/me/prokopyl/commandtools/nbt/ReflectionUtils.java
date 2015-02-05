@@ -39,18 +39,30 @@ abstract public class ReflectionUtils
         return Class.forName(getMinecraftPackageName() + "." + name);
     }
     
+    static public Object getField(Class hClass, Object instance, String name) 
+            throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    {
+        Field field = hClass.getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(instance);
+    }
+    
     static public Object getField(Object instance, String name) 
             throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException
     {
-        Field field = instance.getClass().getField(name);
-        field.setAccessible(true);
-        return field.get(instance);
+        return getField(instance.getClass(), instance, name);
     }
     
     static public void setField(Object instance, String name, Object value) 
             throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException
     {
-        Field field = instance.getClass().getField(name);
+        setField(instance.getClass(), instance, name, value);
+    }
+    
+    static public void setField(Class hClass, Object instance, String name, Object value) 
+            throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException
+    {
+        Field field = hClass.getDeclaredField(name);
         field.setAccessible(true);
         field.set(instance, value);
     }

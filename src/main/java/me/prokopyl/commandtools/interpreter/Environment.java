@@ -17,9 +17,12 @@
 
 package me.prokopyl.commandtools.interpreter;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.UUID;
 import me.prokopyl.commandtools.CommandTool;
+import me.prokopyl.commandtools.PluginLogger;
+import me.prokopyl.commandtools.nbt.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -57,7 +60,7 @@ public class Environment
         currentLocation = player.getTargetBlock(TRANSPARENT_BLOCKS, 100).getLocation();
         oldLocation = player.getLocation().clone();
         commandsExecuted = 0;
-        
+        setPlayerLocation(currentLocation);
     }
     
     public void executeCommand(String sCommand)
@@ -73,6 +76,7 @@ public class Environment
     {
         if(commandsExecuted == 0) notify("§7This tool has no command assigned. Use §f/ctool edit§7 to add some.");
         
+        setPlayerLocation(oldLocation);
         currentTool = null;
         currentPlayer = null;
         currentLocation = null;
@@ -83,6 +87,24 @@ public class Environment
     {
         if(currentPlayer == null) return;
         currentPlayer.sendMessage("§6" + currentTool.getName() + ">§r " + message);
+    }
+    
+    private void setPlayerLocation(Location newLocation)
+    {
+        try 
+        {
+            Field f = ReflectionUtils.getBukkitClassByName("entity.CraftEntity").getDeclaredField("entity");
+            f.setAccessible(true);
+            Object mcEntity = f.get(currentPlayer);
+            Class mcEntityClass = ReflectionUtils.getMinecraftClassByName("Entity");
+            ReflectionUtils.setField(mcEntityClass, mcEntity, "locX", newLocation.getX());
+            ReflectionUtils.setField(mcEntityClass, mcEntity, "locY", newLocation.getY());
+            ReflectionUtils.setField(mcEntityClass, mcEntity, "locZ", newLocation.getZ());
+        } 
+        catch (Exception ex) 
+        {
+            PluginLogger.LogError("Could not set Player location", ex);
+        }
     }
     
     public void applyTeleportation(Location newLocation)
