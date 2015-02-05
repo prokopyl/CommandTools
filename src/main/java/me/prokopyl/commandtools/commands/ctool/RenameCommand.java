@@ -40,15 +40,15 @@ public class RenameCommand extends Command
 
         String sNewName = "";
 
-        if(args.length < 2)
+        if(args.length < 1)
         {
             player.sendMessage("§cYou must give a name to your tool.");
             return;
         }
 
-        for(int i = 1; i < args.length; i++)
+        for (String arg : args) 
         {
-            sNewName += args[i] + " ";
+            sNewName += arg + " ";
         }
         sNewName = sNewName.trim();
 
