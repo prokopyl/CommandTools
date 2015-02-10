@@ -20,7 +20,6 @@ package me.prokopyl.commandtools.commands.ctool;
 
 import me.prokopyl.commandtools.commands.*;
 import me.prokopyl.commandtools.gui.ToolExplorer;
-import org.bukkit.entity.Player;
 
 @CommandInfo(name =  "explore")
 public class ExploreCommand extends Command
@@ -33,8 +32,7 @@ public class ExploreCommand extends Command
     @Override
     protected void run() throws CommandException 
     {
-        Player player = playerSender();
-        ToolExplorer.openExplorer(player);
+        ToolExplorer.openExplorer(playerSender());
     }
 
 }

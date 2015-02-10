@@ -23,7 +23,7 @@ import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
 
-@CommandInfo(name =  "get")
+@CommandInfo(name = "get", usageParameters = "<tool name>")
 public class GetCommand extends Command
 {
 
@@ -36,33 +36,12 @@ public class GetCommand extends Command
     {
         Player player = playerSender();
         if(player.getInventory().firstEmpty() < 0)
-        {
-            player.sendMessage("§cYour inventory is full ! You must have some space left in order to get a tool.");
-            return;
-        }
+            error("Your inventory is full ! You must have some space left in order to get a tool.");
 
-        String toolName = "";
-
-        if(args.length < 1)
-        {
-            player.sendMessage("§cYou must give a name to get your tool.");
-            return;
-        }
-
-        for(int i = 0; i < args.length; i++)
-        {
-            toolName += args[i] + " ";
-        }
-        toolName = toolName.trim();
-
-        CommandTool tool = ToolManager.getTool(player.getUniqueId(), toolName);
-
-        if(tool == null)
-        {
-            player.sendMessage("§cThis tool does not exist.");
-            return;
-        }
-        player.getInventory().addItem(tool.createItem());
+        if(args.length < 1) 
+            throwInvalidArgument("You must give a name to get your tool");
+        
+        player.getInventory().addItem(getToolFromArgs(player).createItem());
     }
 
 }

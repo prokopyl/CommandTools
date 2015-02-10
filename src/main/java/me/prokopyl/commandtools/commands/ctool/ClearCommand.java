@@ -23,7 +23,7 @@ import me.prokopyl.commandtools.CommandTools;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
 
-@CommandInfo(name =  "clear")
+@CommandInfo(name =  "clear", usageParameters = "<tool name>")
 public class ClearCommand extends Command
 {
 
@@ -36,7 +36,6 @@ public class ClearCommand extends Command
     {
         Player player = playerSender();
         CommandTool tool = getDesignatedTool(player);
-        if(tool == null) return;
         CommandTools.clear(player, tool);
     }
     

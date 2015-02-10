@@ -22,7 +22,7 @@ import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
 
-@CommandInfo(name =  "info")
+@CommandInfo(name =  "info", usageParameters = "[tool name]")
 public class InfoCommand extends Command
 {
 
@@ -35,7 +35,6 @@ public class InfoCommand extends Command
     {
         Player player = playerSender();
         CommandTool tool = getDesignatedTool(player);
-        if(tool == null) return;
 
         player.sendMessage("§3§l ===== Information about " + tool.getName() + " =====");
         player.sendMessage("§7 Name : §r" + tool.getName());

@@ -41,17 +41,11 @@ public class CreateCommand extends Command
 
         ItemStack itemInHand = player.getItemInHand();
         if(itemInHand.getType() == Material.AIR)
-        {
-            player.sendMessage("§cYou must have an item in hand in order to get a tool.");
-            return;
-        }
+            error("You must have an item in hand in order to get a tool.");
 
         int firstEmptySlot = playerInventory.firstEmpty();
         if(firstEmptySlot < 0)
-        {
-            player.sendMessage("§cYour inventory is full ! You must have some space left in order to get a tool.");
-            return;
-        }
+            error("Your inventory is full ! You must have some space left in order to get a tool.");
 
         CommandTool newTool = ToolManager.createNewTool(player, itemInHand.getType());
 

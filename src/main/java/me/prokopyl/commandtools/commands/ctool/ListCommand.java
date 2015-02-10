@@ -39,11 +39,11 @@ public class ListCommand extends Command
         List<CommandTool> toolList = ToolManager.getToolList(player.getUniqueId());
         if(toolList == null|| toolList.isEmpty())
         {
-            player.sendMessage("§7No tool found.");
+            info("No tool found.");
             return;
         }
 
-        player.sendMessage("§7" + toolList.size() + " tools found.");
+        info("§7" + toolList.size() + " tools found.");
 
         String sToolList = toolList.get(0).getId();
         for(int i = 1; i < toolList.size(); i++)

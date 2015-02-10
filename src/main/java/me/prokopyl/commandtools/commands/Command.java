@@ -47,7 +47,7 @@ abstract public class Command
         }
         catch(CommandException ex)
         {
-            sender.sendMessage(ex.getReasonString());
+            warning(ex.getReasonString());
         }
         this.sender = null; this.args = null;
     }
@@ -62,61 +62,94 @@ abstract public class Command
         return commandName;
     }
     
+    public Commands getCommandGroup()
+    {
+        return commandGroup;
+    }
+    
     public boolean matches(String name)
     {
         return commandName.equals(name.toLowerCase());
     }
     
+    
+    ///////////// Common methods for commands /////////////
+    
+    protected void throwInvalidArgument(String reason) throws CommandException
+    {
+        throw new CommandException(this, Reason.INVALID_PARAMETERS, reason);
+    }
+        
     protected Player playerSender() throws CommandException
     {
-        if(!(sender instanceof Player)) throw new CommandException(Reason.COMMANDSENDER_EXPECTED_PLAYER);
+        if(!(sender instanceof Player)) 
+            throw new CommandException(this, Reason.COMMANDSENDER_EXPECTED_PLAYER);
         return (Player)sender;
     }
     
-    static protected CommandTool getToolInHand(Player player)
+    protected void info(String message)
+    {
+        sender.sendMessage("§7" + message);
+    }
+    
+    protected void warning(String message)
+    {
+        sender.sendMessage("§c" + message);
+    }
+    
+    protected void error(String message) throws CommandException
+    {
+        throw new CommandException(this, Reason.COMMAND_ERROR, message);
+    }
+    
+    protected void tellRaw(String rawMessage) throws CommandException
+    {
+        Player player = playerSender();
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), 
+                "tellraw " + player.getName() + " " + rawMessage);
+    }
+    
+
+    
+    protected CommandTool getToolInHand(Player player) throws CommandException
     {
         ItemStack itemInHand = player.getItemInHand();
         if(itemInHand.getType() == Material.AIR || !CommandTool.isCommandTool(itemInHand))
-        {
-            player.sendMessage("§cYou must have a tool in hand.");
-            return null;
-        }
+            error("You must have a tool in hand.");
 
         CommandTool tool = ToolManager.getTool(itemInHand);
         if(tool == null)
-        {
-            player.sendMessage("§cThis tool does not exist in the Tool Database. It may have been deleted.");
-            return null;
-        }
+            error("This tool does not exist in the Tool Database. It may have been deleted.");
 
         return tool;
 
     }
     
-    static public void tellRaw(Player player, String rawMessage)
+    protected CommandTool getToolFromArgs(Player player) throws CommandException
     {
-        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), 
-                "tellraw " + player.getName() + " " + rawMessage);
+        CommandTool tool;
+        String toolName = "";
+        for (String arg : args) 
+        {
+            toolName += arg + " ";
+        }
+        toolName = toolName.trim();
+
+        tool = ToolManager.getTool(player.getUniqueId(), toolName);
+        if(tool == null)
+        {
+            error("This tool does not exist.");
+        }
+        return tool;
     }
     
-    protected CommandTool getDesignatedTool(Player player)
+    protected CommandTool getDesignatedTool(Player player) throws CommandException
     {
         CommandTool tool;
 
         if(args.length >= 1)//Designated by name
         {
-            String toolName = "";
-            for (String arg : args) 
-            {
-                toolName += arg + " ";
-            }
-            toolName = toolName.trim();
-
-            tool = ToolManager.getTool(player.getUniqueId(), toolName);
-            if(tool == null)
-            {
-                player.sendMessage("§cThis tool does not exist.");
-            }
+            tool = getToolFromArgs(player);
         }
         else
         {

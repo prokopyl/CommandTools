@@ -33,9 +33,8 @@ public class DisableCommand extends Command
     @Override
     protected void run() throws CommandException 
     {
-        Player player = playerSender();
-        ToolManager.setEnabled(player.getUniqueId(), false);
-        player.sendMessage("§7Your Command Tools are now §cdisabled§7.");
+        ToolManager.setEnabled(playerSender().getUniqueId(), false);
+        info("Your Command Tools are now §cdisabled§7.");
     }
     
 }

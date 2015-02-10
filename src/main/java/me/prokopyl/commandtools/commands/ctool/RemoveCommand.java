@@ -36,13 +36,10 @@ public class RemoveCommand extends Command
     {
         Player player = playerSender();
         if(!CommandTool.isCommandTool(player.getItemInHand()))
-        {
-            player.sendMessage("§cThis is not a valid command tool.");
-            return;
-        }
+            error("§cThis is not a valid command tool");
 
         player.setItemInHand(new ItemStack(Material.AIR));
-        player.sendMessage("§7This tool has been removed from your inventory.");
+        info("This tool has been removed from your inventory.");
     }
 
 }

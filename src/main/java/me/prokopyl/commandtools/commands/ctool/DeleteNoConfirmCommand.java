@@ -24,7 +24,7 @@ import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
 
-@CommandInfo(name =  "delete-noconfirm")
+@CommandInfo(name =  "delete-noconfirm", usageParameters = "[tool name]")
 public class DeleteNoConfirmCommand extends Command
 {
 
@@ -35,15 +35,11 @@ public class DeleteNoConfirmCommand extends Command
     @Override
     protected void run() throws CommandException 
     {
-            Player player = playerSender();
-    CommandTool tool = getDesignatedTool(player);
-    
-    if(tool != null) 
-    {
+        Player player = playerSender();
+        CommandTool tool = getDesignatedTool(player);
         CommandTools.clear(player, tool);
         ToolManager.deleteTool(tool);
-        player.sendMessage("§7Tool successfully deleted.");
-    }
+        info("Tool successfully deleted.");
     }
 
 }

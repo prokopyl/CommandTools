@@ -23,7 +23,7 @@ import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
 
-@CommandInfo(name =  "rename")
+@CommandInfo(name =  "rename", usageParameters = "<new name>")
 public class RenameCommand extends Command
 {
 
@@ -34,17 +34,13 @@ public class RenameCommand extends Command
     @Override
     protected void run() throws CommandException 
     {
-            Player player = playerSender();
+        Player player = playerSender();
         CommandTool tool = getToolInHand(player);
         if(tool == null) return;
 
         String sNewName = "";
 
-        if(args.length < 1)
-        {
-            player.sendMessage("§cYou must give a name to your tool.");
-            return;
-        }
+        if(args.length < 1) throwInvalidArgument("You must give a name to your tool");
 
         for (String arg : args) 
         {

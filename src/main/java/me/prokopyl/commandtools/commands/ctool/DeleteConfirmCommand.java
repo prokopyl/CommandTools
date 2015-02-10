@@ -22,7 +22,7 @@ import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
 
-@CommandInfo(name =  "delete")
+@CommandInfo(name =  "delete", usageParameters = "[tool name]")
 public class DeleteConfirmCommand extends Command
 {
 
@@ -33,14 +33,12 @@ public class DeleteConfirmCommand extends Command
     @Override
     protected void run() throws CommandException 
     {
-            Player player = playerSender();
-    CommandTool tool = getDesignatedTool(player);
-    if(tool != null)
-    {
-        tellRaw(player, "{text:\"You are going to delete \",extra:[{text:\""+ tool.getId() +"\",color:gold},{text:\". Are you sure ? \",color:white}," +
+        Player player = playerSender();
+        CommandTool tool = getDesignatedTool(player);
+        tellRaw("{text:\"You are going to delete \",extra:[{text:\""+ tool.getId() +"\",color:gold},{text:\". Are you sure ? \",color:white}," +
             "{text:\"[Confirm]\", color:green, clickEvent:{action:run_command,value:\"/ctool delete-noconfirm "+ tool.getId() +"\"}, " + 
             "hoverEvent:{action:show_text,value:{text:\"This tool will be deleted \",extra:[{text:\"forever\",color:red,bold:true,italic:true,underlined:true}, {text:\" !\", underlined:true}],underlined:true}}}]}");
-    }
+        
     }
 
 }

@@ -29,15 +29,15 @@ public class MigrateCommand extends Command
     }
 
     @Override
-    protected void run() 
+    protected void run() throws CommandException
     {
         if(!sender.isOp())
         {
-            sender.sendMessage("§cYou must be an operator to start CommandTool migration.");
+            error("You must be an operator to start CommandTool migration.");
             return;
         }
 
-        sender.sendMessage("Migration started. See console for details.");
+        info("Migration started. See console for details.");
         UUIDMigrator.Migrate();
     }    
 }

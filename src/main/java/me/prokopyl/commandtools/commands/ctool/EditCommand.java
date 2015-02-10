@@ -41,7 +41,7 @@ public class EditCommand extends Command
         CommandTool tool = ToolManager.getTool(item);
         if(tool == null)
         {
-            player.sendMessage("§cYou must have a tool in your hand.");
+            error("You must have a tool in your hand.");
             return;
         }
 
