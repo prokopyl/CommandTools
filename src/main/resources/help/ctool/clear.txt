@@ -1,0 +1,2 @@
+Clears all instances of the tool designated by [tool name] from your inventory.
+If [tool name] is not specified, it clears all instances of the tool you have in hand.

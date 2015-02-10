@@ -1,0 +1,15 @@
+This commands manages and create Command Tools.
+clear: Removes all instances of a tool from your inventory.
+new: Creates a new tool
+delete: Deletes a tool.
+delete-noconfirm: Deletes a tool. Deletion is permanent and made without confirmation
+disable: Prevents yourself to use your tools.
+edit: Edits the contents of a tool.
+enable: Allow yourself to use your tools again, after using disable.
+explore: Opens a GUI to manage your tools and your inventory.
+get: Gives you a tool.
+info: Gives you information about a tool.
+list: Lists all the tools you currently have.
+migrate: Start the UUID migration. Operator only.
+remove: Removes a tool from your hand.
+rename: Renames a tool.

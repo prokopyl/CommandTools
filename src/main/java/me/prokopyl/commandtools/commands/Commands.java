@@ -17,7 +17,11 @@
  */
 package me.prokopyl.commandtools.commands;
 
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
 import me.prokopyl.commandtools.PluginLogger;
 
 import me.prokopyl.commandtools.commands.ctool.*;
@@ -50,29 +54,82 @@ public enum Commands
     static private final Commands[] commandGroups = Commands.class.getEnumConstants();
     private final String[] names;
     private final Class<? extends Command>[] commandsClasses;
-    private final Command[] commands;
+    private final ArrayList<Command> commands = new ArrayList<>();
+    private final HashMap<String, String> commandsDescriptions = new HashMap<>();
+    private String description = "";
     private Commands(String[] names, Class<? extends Command> ... commandsClasses)
     {
         this.names = names;
         this.commandsClasses = commandsClasses;
-        this.commands = new Command[commandsClasses.length];
+        initDescriptions();
         initCommands();
+    }
+    
+    private void initDescriptions()
+    {
+        String fileName = "help/" + getUsualName() + ".txt";
+        InputStream stream = getClass().getClassLoader().getResourceAsStream(fileName);
+        if(stream == null)
+        {
+            PluginLogger.LogWarning("Could not load description file for the " + getUsualName() + " command");
+            return;
+        }
+        
+	Scanner scanner = new Scanner(stream);
+        StringBuilder builder = new StringBuilder();
+        
+        //Getting the group's description
+        //And then each command's description
+        int colonIndex, firstSpaceIndex;
+        boolean isGroupDescription = true;
+        while (scanner.hasNextLine()) 
+        {
+            String line = scanner.nextLine();
+            colonIndex = line.indexOf(':');
+            if(isGroupDescription)
+            {
+                firstSpaceIndex = line.indexOf(' ');
+                if(colonIndex > 0 && firstSpaceIndex > colonIndex)
+                    isGroupDescription = false;
+            }
+            
+            if(isGroupDescription)
+            {
+                builder.append(line).append('\n');
+            }
+            else
+            {
+                commandsDescriptions.put(line.substring(0, colonIndex).trim(), 
+                                         line.substring(colonIndex + 1).trim());
+            }
+        }
+        
+        scanner.close();
+        description = builder.toString().trim();
+ 
     }
     
     private void initCommands()
     {
-        Constructor<? extends Command> constructor;
-        for(int i = 0; i < commands.length; i++)
+        for (Class<? extends Command> commandClass : commandsClasses) 
         {
-            try 
-            {
-                constructor = commandsClasses[i].getConstructor(Commands.class);
-                commands[i] = constructor.newInstance(this);
-            } 
-            catch (Exception ex) 
-            {
-                PluginLogger.LogWarning("Exception while initializing command", ex);
-            }
+            addCommand(commandClass);
+        }
+        
+        addCommand(HelpCommand.class);
+    }
+    
+    private void addCommand(Class<? extends Command> commandClass)
+    {
+        Constructor<? extends Command> constructor;
+        try 
+        {
+            constructor = commandClass.getConstructor(Commands.class);
+            commands.add(constructor.newInstance(this));
+        } 
+        catch (Exception ex) 
+        {
+            PluginLogger.LogWarning("Exception while initializing command", ex);
         }
     }
     
@@ -96,16 +153,28 @@ public enum Commands
     
     public boolean executeMatchingCommand(CommandSender sender, String commandName, String[] args)
     {
+        Command command = getMatchingCommand(commandName);
+        if(command != null)
+        {
+            command.execute(sender, args);
+        }
+        else
+        {
+            sender.sendMessage(getUsage());
+        }
+        return command != null;
+    }
+    
+    public Command getMatchingCommand(String commandName)
+    {
         for(Command command : commands)
         {
             if(command.matches(commandName))
             {
-                command.execute(sender, args);
-                return true;
+                return command;
             }
         }
-        sender.sendMessage(getUsage());
-        return false;
+        return null;
     }
     
     static public boolean execute(CommandSender sender, String commandName, String[] args)
@@ -137,11 +206,11 @@ public enum Commands
     
     public String[] getCommandsNames()
     {
-        String[] commandsNames = new String[commands.length];
+        String[] commandsNames = new String[commands.size()];
         
-        for(int i = 0; i < commands.length; i++)
+        for(int i = 0; i < commands.size(); i++)
         {
-            commandsNames[i] = commands[i].getName();
+            commandsNames[i] = commands.get(i).getName();
         }
         
         return commandsNames;
@@ -155,5 +224,7 @@ public enum Commands
     
     public String getUsualName() { return names[0]; }
     public String[] getNames() { return names.clone(); }
-    public Command[] getCommands() { return commands.clone();}
+    public Command[] getCommands() { return commands.toArray(new Command[commands.size()]);}
+    public String getDescription() { return description; }
+    public String getDescription(String commandName) { return commandsDescriptions.get(commandName); }
 }

@@ -23,10 +23,9 @@ import me.prokopyl.commandtools.CommandTools;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
 
-@CommandInfo(name =  "clear", usageParameters = "<tool name>")
+@CommandInfo(name = "clear", usageParameters = "[tool name]")
 public class ClearCommand extends Command
 {
-
     public ClearCommand(Commands commandGroup) {
         super(commandGroup);
     }

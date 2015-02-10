@@ -6,6 +6,7 @@
 
 package me.prokopyl.commandtools.commands;
 
+import java.util.HashMap;
 import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.commands.CommandException.Reason;
@@ -20,6 +21,7 @@ abstract public class Command
     protected final Commands commandGroup;
     protected final String commandName;
     protected final String usageParameters;
+    protected final String commandDescription;
     
     protected CommandSender sender;
     protected String[] args;
@@ -36,6 +38,7 @@ abstract public class Command
         
         commandName = commandInfo.name().toLowerCase();
         usageParameters = commandInfo.usageParameters();
+        commandDescription = commandGroup.getDescription(commandName);
     }
     
     public void execute(CommandSender sender, String[] args)
