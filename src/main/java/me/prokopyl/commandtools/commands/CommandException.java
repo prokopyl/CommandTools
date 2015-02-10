@@ -24,7 +24,8 @@ public class CommandException extends Exception
     {
         COMMANDSENDER_EXPECTED_PLAYER,
         INVALID_PARAMETERS,
-        COMMAND_ERROR
+        COMMAND_ERROR,
+        SENDER_NOT_AUTHORIZED
     }
     
     private final Reason reason;
@@ -59,6 +60,8 @@ public class CommandException extends Exception
                         command.getName();
             case COMMAND_ERROR:
                 return extra.isEmpty() ? "An unknown error suddenly happened." : extra;
+            case SENDER_NOT_AUTHORIZED:
+                return "You do not have the permission to use this command.";
             default:
                 return "An unknown error suddenly happened.";
         }

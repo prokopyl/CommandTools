@@ -13,3 +13,4 @@ list: Lists all the tools you currently have.
 migrate: Start the UUID migration. Operator only.
 remove: Removes a tool from your hand.
 rename: Renames a tool.
+help : Use help for more information about a command.

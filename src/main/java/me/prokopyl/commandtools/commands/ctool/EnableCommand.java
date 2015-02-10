@@ -20,7 +20,6 @@ package me.prokopyl.commandtools.commands.ctool;
 
 import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.commands.*;
-import org.bukkit.entity.Player;
 
 @CommandInfo(name =  "enable")
 public class EnableCommand extends Command

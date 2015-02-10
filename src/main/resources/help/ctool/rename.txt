@@ -1,0 +1,4 @@
+Gives a new name to the tool you have in hand.
+Its internal ID will be changed accordingly.
+
+<tool name> : The new name you want to give to your tool.

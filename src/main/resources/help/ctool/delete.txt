@@ -1,0 +1,5 @@
+Deletes a tool, and removes all instances from your inventory.
+As deletion is permanent, a confirmation message will be shown to the sending player.
+
+[tool name] : The name of the tool you want to delete.
+              If not specified, the tool will be the one in your hand.

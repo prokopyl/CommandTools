@@ -20,6 +20,7 @@ package me.prokopyl.commandtools.commands.ctool;
 
 import me.prokopyl.commandtools.commands.*;
 import me.prokopyl.commandtools.migration.UUIDMigrator;
+import org.bukkit.command.CommandSender;
 
 @CommandInfo(name = "migrate")
 public class MigrateCommand extends Command
@@ -31,13 +32,13 @@ public class MigrateCommand extends Command
     @Override
     protected void run() throws CommandException
     {
-        if(!sender.isOp())
-        {
-            error("You must be an operator to start CommandTool migration.");
-            return;
-        }
-
         info("Migration started. See console for details.");
         UUIDMigrator.Migrate();
     }    
+    
+    @Override
+    public boolean canExecute(CommandSender sender)
+    {
+        return sender.isOp();
+    }
 }

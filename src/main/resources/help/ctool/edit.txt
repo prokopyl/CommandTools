@@ -1,0 +1,7 @@
+Allows you to edit the contents of the tool you have in hand.
+When using this command, the tool will switch into edition mode, transforming 
+into a book. The commands in the book will be the tool's new commands.
+Hitting "Sign" or "Done" on the book will revert it back to its normal mode, but
+only if changes have been made.
+Otherwise, you can use this command again to revert a tool in edition mode to 
+normal mode. Trying to drop it on the ground will have the same effect.

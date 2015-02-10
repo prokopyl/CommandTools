@@ -1,0 +1,5 @@
+Deletes a tool, and removes all instances from your inventory.
+§cWARNING: §r THERE WILL BE NO CONFIRMATION. TOOL DELETION IS §lPERMANENT§r.
+
+[tool name] : The name of the tool you want to delete.
+              If not specified, the tool will be the one in your hand.

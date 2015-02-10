@@ -1,0 +1,2 @@
+Re-enables your CommandTools.
+See the disable command for more information about disabling Tools.

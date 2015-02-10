@@ -1,0 +1,2 @@
+Removes a tool from your hand.
+Useful if you do not have lava around.

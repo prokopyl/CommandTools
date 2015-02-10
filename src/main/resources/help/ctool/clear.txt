@@ -1,2 +1,4 @@
-Clears all instances of the tool designated by [tool name] from your inventory.
-If [tool name] is not specified, it clears all instances of the tool you have in hand.
+Clears all instances of a tool from your inventory.
+
+[tool name] : The name of the tool you want to clear from your inventory.
+              If not specified, the tool will be the one in your hand.

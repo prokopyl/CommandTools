@@ -1,0 +1,4 @@
+Disables your CommandTools.
+When a player has its CommandTools disabled, trying using them will do nothing,
+therefore preventing any accidental damage.
+Useful if you only use CommandTools occasionaly on a survival map you play on.

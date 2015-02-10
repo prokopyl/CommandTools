@@ -1,0 +1,10 @@
+Opens a fancy container interface to allow you to manage the tools in your
+inventory.
+The GUI will contain all the tools you have. If you have too many tools to fit
+in one container, the bottom row will have arrows instead of tools, allowing
+you to navigate from page to page.
+
+Taking a tool from the container will give you the tool, like when using the get
+command.
+Putting a tool back in the container will remove the tool from your inventory, 
+like when using the remove command.

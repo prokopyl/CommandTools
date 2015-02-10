@@ -44,9 +44,12 @@ public class HelpCommand extends Command
     {
         sender.sendMessage(commandGroup.getDescription());
         
+        String tCommandName;
         String tDescription;
-        for(String tCommandName : commandGroup.getCommandsNames())
+        for(Command tCommand: commandGroup.getCommands())
         {
+            if(!tCommand.canExecute(sender)) continue;
+            tCommandName = tCommand.getName();
             tDescription = commandGroup.getDescription(tCommandName);
             tCommandName = commandGroup.getUsualName() + " " + tCommandName;
             if(tDescription == null)
@@ -64,6 +67,9 @@ public class HelpCommand extends Command
             error("The specified command does not exist.");
             return;
         }
+        
+        if(!command.canExecute(sender))
+            warning("You do not have the permission to use this command.");
         
         sender.sendMessage("Usage : " + command.getUsageString());
         

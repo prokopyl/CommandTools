@@ -1,0 +1,2 @@
+Creates a new tool, and gives it to you.
+The tool's material will be the same as the one you're currently holding.

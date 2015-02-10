@@ -296,7 +296,7 @@ public class UUIDMigratorWorker implements Runnable
         
         if(sourceSize != destinationSize || !sourceCheckSum.equals(destinationCheckSum))
         {
-            throw new IOException("Backup copy failed : source and destination files ("+sourceFile.getName()+") differs after copy.");
+            throw new IOException("Backup copy failed : source and destination files ("+sourceFile.getName()+") differ after copy.");
         }
         
     }

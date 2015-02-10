@@ -9,7 +9,7 @@ commands:
    ctool:
       description: Manages and creates Command Tools.
       usage: /<command> [new|get|list|edit|rename|delete]
-      permission: commandtools.ctools
+      permission: commandtools.ctool
       permission-message: §cYou are not allowed to use Command Tools.
       
       

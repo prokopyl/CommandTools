@@ -6,7 +6,6 @@
 
 package me.prokopyl.commandtools.commands;
 
-import java.util.HashMap;
 import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.commands.CommandException.Reason;
@@ -41,11 +40,18 @@ abstract public class Command
         commandDescription = commandGroup.getDescription(commandName);
     }
     
+    public boolean canExecute(CommandSender sender)
+    {
+        return sender.hasPermission("commandtools." + commandGroup.getUsualName());
+    }
+    
     public void execute(CommandSender sender, String[] args)
     {
         this.sender = sender; this.args = args;
         try
         {
+            if(!canExecute(sender))
+                throw new CommandException(this, Reason.SENDER_NOT_AUTHORIZED);
             run();
         }
         catch(CommandException ex)

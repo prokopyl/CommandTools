@@ -1,0 +1,9 @@
+Gives you information about a tool.
+This command will give you the following informations : 
+    - The tool's display name
+    - The tool's internal ID.
+    - The tool's material's name.
+    - The number of lines of the tool's script.
+
+[tool name] : The name of the tool you want to get information about.
+              If not specified, the tool will be the one in your hand.
