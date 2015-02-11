@@ -1,5 +1,6 @@
 package me.prokopyl.commandtools;
 
+import java.util.List;
 import me.prokopyl.commandtools.commands.Commands;
 import me.prokopyl.commandtools.gui.ToolEditor;
 import me.prokopyl.commandtools.gui.ToolExplorer;
@@ -41,6 +42,7 @@ public void onEnable()
     Bukkit.getPluginManager().registerEvents(new ToolEditor(), this);
     Bukkit.getPluginManager().registerEvents(new ToolExplorer(), this);
     ToolManager.init();
+    Commands.init();
 }
 
 @Override

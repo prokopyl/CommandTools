@@ -21,18 +21,21 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+import me.prokopyl.commandtools.CommandTools;
 import me.prokopyl.commandtools.PluginLogger;
 
 import me.prokopyl.commandtools.commands.ctool.*;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 
 /**
  *
  * @author Prokopyl<prokopylmc@gmail.com>
  */
-public enum Commands 
+public enum Commands implements TabCompleter
 {
     CTOOL(new String[]{"ctool", "commandtools"},
             ClearCommand.class,
@@ -63,6 +66,7 @@ public enum Commands
         this.commandsClasses = commandsClasses;
         initDescriptions();
         initCommands();
+        CommandTools.getPlugin().getCommand(getUsualName()).setTabCompleter(this);
     }
     
     private void initDescriptions()
@@ -141,12 +145,7 @@ public enum Commands
         }
         
         String commandName = args[0];
-        String[] commandArgs = new String[args.length - 1];
-        
-        for(int i = 0; i < commandArgs.length; i++)
-        {
-            commandArgs[i] = args[i + 1];
-        }
+        String[] commandArgs = getCommandArgsFromGroupArgs(args);
         
         return executeMatchingCommand(sender, commandName, commandArgs);
     }
@@ -165,6 +164,61 @@ public enum Commands
         return command != null;
     }
     
+    static public void init(){};//Yo.
+    
+    @Override
+    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) 
+    {
+        return tabComplete(sender, args);
+    }
+    
+    public List<String> tabComplete(CommandSender sender, String[] args)
+    {
+        if(args.length <= 1) return tabComplete(sender, args.length == 1 ? args[0] : null);
+        String commandName = args[0];
+        String[] commandArgs = getCommandArgsFromGroupArgs(args);
+        return tabCompleteMatching(sender, commandName, commandArgs);
+    }
+    
+    public List<String> tabComplete(CommandSender sender, String commandName)
+    {
+        ArrayList<String> matchingCommands = new ArrayList<String>();
+        for(Command command : commands)
+        {
+            if(!command.canExecute(sender)) continue;
+            if(commandName == null || command.getName().startsWith(commandName.toLowerCase()))
+            {
+                matchingCommands.add(command.getName());
+            }
+        }
+        return matchingCommands;
+    }
+    
+    public List<String> tabCompleteMatching(CommandSender sender, String commandName, String[] args)
+    {
+        Command command = getMatchingCommand(commandName);
+        if(command != null)
+        {
+            return command.tabComplete(sender, args);
+        }
+        else
+        {
+            return new ArrayList<String>();
+        }
+    }
+    
+    public String[] getCommandArgsFromGroupArgs(String[] args)
+    {
+        String[] commandArgs = new String[args.length - 1];
+        
+        for(int i = 0; i < commandArgs.length; i++)
+        {
+            commandArgs[i] = args[i + 1];
+        }
+        
+        return commandArgs;
+    }
+    
     public Command getMatchingCommand(String commandName)
     {
         for(Command command : commands)
@@ -177,7 +231,23 @@ public enum Commands
         return null;
     }
     
+    
     static public boolean execute(CommandSender sender, String commandName, String[] args)
+    {
+        Commands commandGroup = getMatchingCommandGroup(commandName);
+        if(commandGroup == null) return false;
+        commandGroup.executeMatchingCommand(sender, args);
+        return true;
+    }
+    
+    static public List<String> tabComplete(CommandSender sender, String commandName, String[] args)
+    {
+        Commands commandGroup = getMatchingCommandGroup(commandName);
+        if(commandGroup == null) return new ArrayList<String>();
+        return commandGroup.tabComplete(sender, args);
+    }
+    
+    static private Commands getMatchingCommandGroup(String commandName)
     {
         Commands commandGroup = null;
         for(Commands tCommandGroup : commandGroups)
@@ -188,10 +258,7 @@ public enum Commands
                 break;
             }   
         }
-        
-        if(commandGroup == null) return false;
-        commandGroup.executeMatchingCommand(sender, args);
-        return true;
+        return commandGroup;
     }
     
     public boolean matches(String name)
@@ -227,4 +294,5 @@ public enum Commands
     public Command[] getCommands() { return commands.toArray(new Command[commands.size()]);}
     public String getDescription() { return description; }
     public String getDescription(String commandName) { return commandsDescriptions.get(commandName); }
+
 }

@@ -6,6 +6,8 @@
 
 package me.prokopyl.commandtools.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.ToolManager;
 import me.prokopyl.commandtools.commands.CommandException.Reason;
@@ -43,6 +45,11 @@ abstract public class Command
     public boolean canExecute(CommandSender sender)
     {
         return sender.hasPermission("commandtools." + commandGroup.getUsualName());
+    }
+    
+    public List<String> tabComplete(CommandSender sender, String[] args)
+    {
+        return new ArrayList<String>();
     }
     
     public void execute(CommandSender sender, String[] args)
