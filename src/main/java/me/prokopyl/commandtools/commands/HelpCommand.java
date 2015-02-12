@@ -20,6 +20,8 @@ package me.prokopyl.commandtools.commands;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import me.prokopyl.commandtools.PluginLogger;
 
@@ -115,7 +117,21 @@ public class HelpCommand extends Command
 	return result.toString().trim();
     }
     
-
-    
+            
+    @Override
+    protected List<String> complete() throws CommandException
+    {
+        if(args.length != 1) return null;
+        
+        ArrayList<String> matches = new ArrayList<String>();
+        
+        for(Command command : commandGroup.getCommands())
+        {
+            if(command.getName().startsWith(args[0])) 
+                matches.add(command.getName());
+        }
+        
+        return matches;
+    }
   
 }
