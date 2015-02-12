@@ -1,7 +1,7 @@
-Migrates the Tool database to the new 1.7.10 format, that uses UUIDs instead of
-player names to designate players.
-Migration runs in a aseparate thread, therefore its progress can only be watched
-from the server console.
+Migrates the Tool database to the new 1.7.10 format, that uses UUIDs 
+instead of player names to designate players.
+Migration runs in a separate thread, therefore its progress can only be 
+watched from the server console.
 
 The migration will run the following steps :
     - Checking if there are files to migrate. If not, the migration stops.
@@ -19,12 +19,12 @@ The migration will run the following steps :
     - Loading the old name-based tool stores to memory.
     §c--- From this step, changes to disk will be made, and you will have to use
     --- backups if you want to revert back from before the migration started.§r
-    - Merging the old named-based tool stores with the new UUID-based ones, if
+    - Merging the old name-based tool stores with the new UUID-based ones, if
         there is any (which can be the case if your player started to use newer
         versions of CommandTools before the migration started).
     - Saving all these merged tool stores to disk.
     - Writing a list of all the migrated player's names, and their respective
-        UUIDs, into a file 'named migratedusers.txt'.
+        UUIDs, into a file named 'migratedusers.txt'.
     - Deleting the old name-based files from the main directory (they are still
         present in the apropriate backup directory just in case).
 
