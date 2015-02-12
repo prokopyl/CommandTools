@@ -20,22 +20,24 @@ package me.prokopyl.commandtools.commands;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import me.prokopyl.commandtools.CommandTools;
 import me.prokopyl.commandtools.PluginLogger;
 
 import me.prokopyl.commandtools.commands.ctool.*;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
  * @author Prokopyl<prokopylmc@gmail.com>
  */
-public enum Commands implements TabCompleter
+public enum Commands implements TabCompleter, CommandExecutor
 {
     CTOOL(new String[]{"ctool", "commandtools"},
             ClearCommand.class,
@@ -66,7 +68,6 @@ public enum Commands implements TabCompleter
         this.commandsClasses = commandsClasses;
         initDescriptions();
         initCommands();
-        CommandTools.getPlugin().getCommand(getUsualName()).setTabCompleter(this);
     }
     
     private void initDescriptions()
@@ -164,12 +165,28 @@ public enum Commands implements TabCompleter
         return command != null;
     }
     
-    static public void init(){};//Yo.
+    static public void init(JavaPlugin plugin)
+    {
+        org.bukkit.command.PluginCommand bukkitCommand;
+        for(Commands commandGroup : commandGroups)
+        {
+            bukkitCommand = plugin.getCommand(commandGroup.getUsualName());
+            bukkitCommand.setAliases(commandGroup.getAliases());
+            bukkitCommand.setExecutor(commandGroup);
+            bukkitCommand.setTabCompleter(commandGroup);
+        }
+    }
     
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) 
     {
         return tabComplete(sender, args);
+    }
+    
+    @Override
+    public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args)
+    {
+        return executeMatchingCommand(sender, args);
     }
     
     public List<String> tabComplete(CommandSender sender, String[] args)
@@ -291,6 +308,7 @@ public enum Commands implements TabCompleter
     
     public String getUsualName() { return names[0]; }
     public String[] getNames() { return names.clone(); }
+    public List<String> getAliases() { return Arrays.asList(names).subList(1, names.length);}
     public Command[] getCommands() { return commands.toArray(new Command[commands.size()]);}
     public String getDescription() { return description; }
     public String getDescription(String commandName) { return commandsDescriptions.get(commandName); }

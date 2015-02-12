@@ -1,6 +1,5 @@
 package me.prokopyl.commandtools;
 
-import java.util.List;
 import me.prokopyl.commandtools.commands.Commands;
 import me.prokopyl.commandtools.gui.ToolEditor;
 import me.prokopyl.commandtools.gui.ToolExplorer;
@@ -8,8 +7,6 @@ import me.prokopyl.commandtools.migration.NBTUtils;
 import me.prokopyl.commandtools.migration.UUIDMigrator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,7 +39,7 @@ public void onEnable()
     Bukkit.getPluginManager().registerEvents(new ToolEditor(), this);
     Bukkit.getPluginManager().registerEvents(new ToolExplorer(), this);
     ToolManager.init();
-    Commands.init();
+    Commands.init(this);
 }
 
 @Override
@@ -50,12 +47,6 @@ public void onDisable()
 {
     UUIDMigrator.WaitForMigration();
     ToolManager.exit();
-}
-
-@Override
-public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-{
-    return Commands.execute(sender, cmd.getName(), args);
 }
 
 @EventHandler(priority=EventPriority.HIGH)
