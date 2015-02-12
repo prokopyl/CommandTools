@@ -73,7 +73,8 @@ public class HelpCommand extends Command
         if(!command.canExecute(sender))
             warning("You do not have the permission to use this command.");
         
-        sender.sendMessage("Usage : " + command.getUsageString());
+        sender.sendMessage("§l§6 ||== CommandTools help ==||\n" + 
+                "§l§6 |Usage : §r" + command.getUsageString());
         
         try
         {
@@ -109,7 +110,7 @@ public class HelpCommand extends Command
         while (scanner.hasNextLine()) 
         {
             String line = scanner.nextLine();
-            result.append(line).append("\n");
+            result.append("§l§9 |§r").append(line).append("\n");
         }
  
         scanner.close();
