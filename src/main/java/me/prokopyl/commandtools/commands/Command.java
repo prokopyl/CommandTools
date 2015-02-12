@@ -1,12 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package me.prokopyl.commandtools.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.ToolManager;
@@ -47,9 +43,9 @@ abstract public class Command
         return sender.hasPermission("commandtools." + commandGroup.getUsualName());
     }
     
-    public List<String> tabComplete(CommandSender sender, String[] args)
+    protected List<String> complete() throws CommandException
     {
-        return new ArrayList<String>();
+        return null;
     }
     
     public void execute(CommandSender sender, String[] args)
@@ -67,6 +63,23 @@ abstract public class Command
         }
         this.sender = null; this.args = null;
     }
+    
+    public List<String> tabComplete(CommandSender sender, String[] args)
+    {
+        List<String> result = null;
+        this.sender = sender; this.args = args;
+        try
+        {
+            if(canExecute(sender))
+                result = complete();
+        }
+        catch(CommandException ex){}
+        
+        this.sender = null; this.args = null;
+        if(result == null) result = new ArrayList<String>();
+        return result;
+    }
+    
     
     public String getUsageString()
     {
@@ -103,30 +116,6 @@ abstract public class Command
         return (Player)sender;
     }
     
-    protected void info(String message)
-    {
-        sender.sendMessage("§7" + message);
-    }
-    
-    protected void warning(String message)
-    {
-        sender.sendMessage("§c" + message);
-    }
-    
-    protected void error(String message) throws CommandException
-    {
-        throw new CommandException(this, Reason.COMMAND_ERROR, message);
-    }
-    
-    protected void tellRaw(String rawMessage) throws CommandException
-    {
-        Player player = playerSender();
-        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), 
-                "tellraw " + player.getName() + " " + rawMessage);
-    }
-    
-
-    
     protected CommandTool getToolInHand(Player player) throws CommandException
     {
         ItemStack itemInHand = player.getItemInHand();
@@ -138,7 +127,6 @@ abstract public class Command
             error("This tool does not exist in the Tool Database. It may have been deleted.");
 
         return tool;
-
     }
     
     protected CommandTool getToolFromArgs(Player player) throws CommandException
@@ -173,6 +161,83 @@ abstract public class Command
         }
 
         return tool;
+    }
+    
+    ///////////// Methods for command execution /////////////
+    
+    protected void info(String message)
+    {
+        sender.sendMessage("§7" + message);
+    }
+    
+    protected void warning(String message)
+    {
+        sender.sendMessage("§c" + message);
+    }
+    
+    protected void error(String message) throws CommandException
+    {
+        throw new CommandException(this, Reason.COMMAND_ERROR, message);
+    }
+    
+    protected void tellRaw(String rawMessage) throws CommandException
+    {
+        Player player = playerSender();
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), 
+                "tellraw " + player.getName() + " " + rawMessage);
+    }
+    
+    ///////////// Methods for autocompletion /////////////
+    
+    protected List<String> getMatchingSubset(String prefix, String... list)
+    {
+        return getMatchingSubset(Arrays.asList(list), prefix);
+    }
+    
+    protected List<String> getMatchingSubset(Iterable<? extends String> list, String prefix)
+    {
+        List<String> matches = new ArrayList<String>();
+        
+        for(String item : list)
+        {
+            if(item.startsWith(prefix)) matches.add(item);
+        }
+        
+        return matches;
+    }
+    
+    protected List<String> getMatchingPlayerNames(String prefix)
+    {
+        return getMatchingPlayerNames(Bukkit.getOnlinePlayers(), prefix);
+    }
+    
+    protected List<String> getMatchingPlayerNames(Iterable<? extends Player> players, String prefix)
+    {
+        List<String> matches = new ArrayList<String>();
+        
+        for(Player player : players)
+        {
+            if(player.getName().startsWith(prefix)) matches.add(player.getName());
+        }
+        
+        return matches;
+    }
+    
+    protected List<String> getMatchingToolNames(Player player, String prefix)
+    {
+        return getMatchingToolNames(ToolManager.getToolList(player.getUniqueId()), prefix);
+    }
+    
+    protected List<String> getMatchingToolNames(Iterable<? extends CommandTool> tools, String prefix)
+    {
+        List<String> matches = new ArrayList<String>();
+        
+        for(CommandTool tool : tools)
+        {
+            if(tool.getId().startsWith(prefix)) matches.add(tool.getId());
+        }
+        
+        return matches;
     }
 
 }

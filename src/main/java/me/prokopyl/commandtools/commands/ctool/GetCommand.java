@@ -18,8 +18,7 @@
 
 package me.prokopyl.commandtools.commands.ctool;
 
-import me.prokopyl.commandtools.CommandTool;
-import me.prokopyl.commandtools.ToolManager;
+import java.util.List;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
 
@@ -43,5 +42,12 @@ public class GetCommand extends Command
         
         player.getInventory().addItem(getToolFromArgs(player).createItem());
     }
-
+    
+    @Override
+    protected List<String> complete() throws CommandException
+    {
+        if(args.length == 1) 
+            return getMatchingToolNames(playerSender(), args[0]);
+        return null;
+    }
 }

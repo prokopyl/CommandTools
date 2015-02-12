@@ -18,6 +18,7 @@
 
 package me.prokopyl.commandtools.commands.ctool;
 
+import java.util.List;
 import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.commands.*;
 import org.bukkit.entity.Player;
@@ -39,6 +40,14 @@ public class DeleteConfirmCommand extends Command
             "{text:\"[Confirm]\", color:green, clickEvent:{action:run_command,value:\"/ctool delete-noconfirm "+ tool.getId() +"\"}, " + 
             "hoverEvent:{action:show_text,value:{text:\"This tool will be deleted \",extra:[{text:\"forever\",color:red,bold:true,italic:true,underlined:true}, {text:\" !\", underlined:true}],underlined:true}}}]}");
         
+    }
+    
+    @Override
+    protected List<String> complete() throws CommandException
+    {
+        if(args.length == 1) 
+            return getMatchingToolNames(playerSender(), args[0]);
+        return null;
     }
 
 }

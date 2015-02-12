@@ -18,6 +18,7 @@
 
 package me.prokopyl.commandtools.commands.ctool;
 
+import java.util.List;
 import me.prokopyl.commandtools.CommandTool;
 import me.prokopyl.commandtools.CommandTools;
 import me.prokopyl.commandtools.ToolManager;
@@ -41,5 +42,12 @@ public class DeleteNoConfirmCommand extends Command
         ToolManager.deleteTool(tool);
         info("Tool successfully deleted.");
     }
-
+    
+    @Override
+    protected List<String> complete() throws CommandException
+    {
+        if(args.length == 1) 
+            return getMatchingToolNames(playerSender(), args[0]);
+        return null;
+    }
 }
