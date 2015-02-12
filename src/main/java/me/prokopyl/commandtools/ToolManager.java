@@ -29,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 
 abstract public class ToolManager 
 {
+    static public final String DEFAULT_TOOL_NAME = "Tool";
     static private final LinkedList<PlayerToolStore> playerTools = new LinkedList<PlayerToolStore>();
     static private int autosaveTaskHandle = -1;
     
@@ -50,7 +51,7 @@ abstract public class ToolManager
     
     static public CommandTool createNewTool(Player player, Material material)
     {
-        return createNewTool("Tool", player.getUniqueId(), material);
+        return createNewTool(DEFAULT_TOOL_NAME, player.getUniqueId(), material);
     }
     
     static public CommandTool createNewTool(String toolName, UUID playerUUID, Material material)       

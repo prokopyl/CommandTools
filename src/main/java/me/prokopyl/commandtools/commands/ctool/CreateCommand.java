@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-@CommandInfo(name = "new")
+@CommandInfo(name = "new", usageParameters = "[tool name]")
 public class CreateCommand extends Command
 {
     public CreateCommand(Commands commandGroup) {
@@ -48,7 +48,9 @@ public class CreateCommand extends Command
         if(firstEmptySlot < 0)
             error("Your inventory is full ! You must have some space left in order to get a tool.");
 
-        CommandTool newTool = ToolManager.createNewTool(player, toolMaterial);
+        CommandTool newTool = ToolManager.createNewTool(
+                args.length >= 1 ? args[0] : ToolManager.DEFAULT_TOOL_NAME,
+                player.getUniqueId(), toolMaterial);
 
         playerInventory.setItem(firstEmptySlot, itemInHand);
         player.setItemInHand(newTool.createItem());

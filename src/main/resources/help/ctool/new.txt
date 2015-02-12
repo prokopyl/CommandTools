@@ -1,3 +1,5 @@
 Creates a new tool, and gives it to you.
 The tool's material will be the same as the one you're currently holding.
 If you are hoding no item, the tool will be a wooden stick.
+[tool name] : The new name you want to give to your tool.
+    If it is not specified, a default name will be given to it.
